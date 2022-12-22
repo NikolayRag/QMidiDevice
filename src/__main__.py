@@ -24,12 +24,12 @@ class QMDDemo():
 
 
 
-    #collect MIDI devices into accumulated list
-    def midiCollect(self):
+    #show MIDI devices
+    def midiCollect(self,  _devices):
 
         self.wListDevices.clear()
 
-        for cDev in QMidiDevice.rescan().values():
+        for cDev in _devices.values():
             devName = f"{'in' if cDev.isPlugged(False) else '--'} {'out' if cDev.isPlugged(True) else '--'}: {cDev.getName()}"
             cItem = QListWidgetItem(devName)
             cItem.setData(Qt.UserRole, cDev)
@@ -79,13 +79,14 @@ class QMDDemo():
 
 #        self.cMidi = QMidiDevice()
 
-        wBtnMidiScan.clicked.connect(self.midiCollect)
 #        wBtnMidiLock.clicked.connect(self.midiLock)
+        QMidiDevice.sigScanned.connect(self.midiCollect)
+        wBtnMidiScan.clicked.connect(QMidiDevice.rescan)
         wBtnMidiNext.clicked.connect(self.midiPoke)
 #        self.cMidi.scanned.connect(print)
 
 
-        self.midiCollect()
+        QMidiDevice.rescan()
 
 
         #App run
