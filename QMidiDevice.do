@@ -4,6 +4,6 @@
  decide, lowlevel 5: +0 "src\QMidiDevice.py" Ki 22/12/21 21:28:09
 	reuse pygame.midi.Output/Input device
 
-=ux, api 7: +0 "src\QMidiDevice.py" Ki 22/12/22 17:06:07
++ux, api 7: +0 "src\QMidiDevice.py" Ki 22/12/23 01:58:01
 	join Input and Output into one QMidiDevice
 
