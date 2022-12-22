@@ -6,6 +6,7 @@ import pygame.midi #   https://www.pygame.org/docs/   https://github.com/pygame/
 
 
 
+# =todo 7 (ux, api) +0: join Input and Output into one QMidiDevice
 
 '''
 QMidiDevice is Pygame.midi device wrapper.
