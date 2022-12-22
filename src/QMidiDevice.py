@@ -6,6 +6,18 @@ import pygame.midi #   https://www.pygame.org/docs/   https://github.com/pygame/
 
 
 
+class QMidiDeviceMaintain(QObject):
+	sigScanned = Signal(dict) 
+
+
+	def __init__(self):
+		QObject.__init__(self)
+
+
+	def shout(self, _devices):
+		self.sigScanned.emit(_devices)
+
+
 
 '''
 QMidiDevice is Pygame.midi device wrapper.
@@ -19,6 +31,9 @@ It is safe, and is proper use, not to release QMidiDevice in user app ever, if n
 class QMidiDevice(QObject):
 	MidiCC = 0xB0
 
+
+	MaintainObject = QMidiDeviceMaintain()
+	sigScanned = MaintainObject.sigScanned #alias
 
 	DevicePool = {} #static {name:QMidiDevice,..}
 
@@ -84,7 +99,10 @@ class QMidiDevice(QObject):
 			cDevice._plug(mN, devOut)
 
 
-		return QMidiDevice.midiList()
+		outList = QMidiDevice.midiList()
+		
+		QMidiDevice.MaintainObject.shout(outList)
+		return outList
 
 
 
