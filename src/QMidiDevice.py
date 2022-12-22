@@ -88,9 +88,7 @@ class QMidiDevice(QObject):
 			devOut = cDevInfo[3]
 
 			if devName not in QMidiDevice.DevicePool:
-				cDevice = QMidiDevice(
-					devName
-				)
+				cDevice = QMidiDevice(devName)
 
 				QMidiDevice.DevicePool[devName] = cDevice
 

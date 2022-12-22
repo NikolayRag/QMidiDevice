@@ -69,7 +69,7 @@ class QMDDemo():
         layMain.addWidget(wBtnMidiScan)
 
 
-        wBtnMidiNext = QPushButton('Next')
+        wBtnMidiNext = QPushButton('Send')
         layMain.addWidget(wBtnMidiNext)
 
 
