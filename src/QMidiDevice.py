@@ -41,8 +41,8 @@ class QMidiDevice(QObject):
 	'''
 	Static QMidiDevice.rescan()
 	Rescan plugged MIDI devices and bind found ID's. This will make any used
-	device outdated untill reconnected, as .quit() is neccessary for updating
-	pygame.midi device list by it's design.
+	 device outdated untill reconnected, as .quit() is neccessary for updating
+	 pygame.midi device list by it's design.
 	
 #	Auto-reconnection will be forced immediately, but devices may react
 #	at reconnection in specific way like lagging.
@@ -53,6 +53,8 @@ class QMidiDevice(QObject):
 		 subsequent and will remain till app end,even when completely unplugged.
 		Replugged device will reuse corresponding QMidiDevice, so QMidiDevice
 		 instance is safe for being lock-assigned by app.
+
+	QMidiDevice.sigScanned signal is emitted as weell, providing devices dict.
 	'''
 
 	def rescan():
