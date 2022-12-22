@@ -68,8 +68,6 @@ class QMDDemo():
         wBtnMidiScan = QPushButton('Scan devices')
         layMain.addWidget(wBtnMidiScan)
 
-#        wBtnMidiLock = QPushButton('Lock')
-#        layMain.addWidget(wBtnMidiLock)
 
         wBtnMidiNext = QPushButton('Next')
         layMain.addWidget(wBtnMidiNext)
@@ -77,13 +75,9 @@ class QMDDemo():
 
         #QMidiDevice setup
 
-#        self.cMidi = QMidiDevice()
-
-#        wBtnMidiLock.clicked.connect(self.midiLock)
         QMidiDevice.sigScanned.connect(self.midiCollect)
         wBtnMidiScan.clicked.connect(QMidiDevice.rescan)
         wBtnMidiNext.clicked.connect(self.midiPoke)
-#        self.cMidi.scanned.connect(print)
 
 
         QMidiDevice.rescan()
