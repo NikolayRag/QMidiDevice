@@ -200,7 +200,7 @@ class QMidiDevice(QObject):
 
 
 
-	def connect(self, _out=True):
+	def connectPort(self, _out=True):
 		if self.isConnected(_out):
 			return True
 
@@ -250,7 +250,7 @@ class QMidiDevice(QObject):
 			return
 
 
-		if not self.connect(True):
+		if not self.connectPort(True):
 			return
 
 
