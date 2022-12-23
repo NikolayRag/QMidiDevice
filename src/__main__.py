@@ -38,14 +38,26 @@ class QMDDemo():
 
 
 
-    def midiPoke(self):
+    def midiListen(self):
         cItem = self.wListDevices.currentItem()
         if not cItem:
             return
 
         midiDev = cItem.data(Qt.UserRole)
         if midiDev:
-            midiDev.send(0, random.randrange(127))
+            midiDev.sigRecieved.connect(lambda v,s: self.midiPoke(v[1], v[2]))
+            midiDev.connectPort(False)
+
+
+
+    def midiPoke(self, _ctrl, _val):
+        cItem = self.wListDevices.currentItem()
+        if not cItem:
+            return
+
+        midiDev = cItem.data(Qt.UserRole)
+        if midiDev:
+            midiDev.send(_ctrl, _val)
 
 
 
@@ -69,6 +81,8 @@ class QMDDemo():
         layMain.addWidget(wBtnMidiScan)
 
 
+        wBtnMidiGet = QPushButton('Listen')
+        layMain.addWidget(wBtnMidiGet)
         wBtnMidiNext = QPushButton('Send')
         layMain.addWidget(wBtnMidiNext)
 
@@ -77,6 +91,7 @@ class QMDDemo():
 
         QMidiDevice.sigScanned.connect(self.midiCollect)
         wBtnMidiScan.clicked.connect(QMidiDevice.rescan)
+        wBtnMidiGet.clicked.connect(self.midiListen)
         wBtnMidiNext.clicked.connect(self.midiPoke)
 
 
