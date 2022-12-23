@@ -191,6 +191,8 @@ class QMidiDevice(QObject):
 	_name
 		unique device reference name, originally scanned vendor device name
 	'''
+
+
 	def __init__(self, _name):
 		QObject.__init__(self)
 
