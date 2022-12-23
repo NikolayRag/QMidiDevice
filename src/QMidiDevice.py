@@ -167,8 +167,8 @@ class QMidiDevice(QObject):
 
 
 			for cCmd in midiCmdA:
-				self.sigRecieved.emit(cCmd[0],cCmd[1])
-
+				#emitting signal from infinite loop(?) result in freezes
+				Thread(target=lambda:self.sigRecieved.emit(cCmd[0], cCmd[1])).start()
 
 
 ### - private
