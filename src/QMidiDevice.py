@@ -127,8 +127,8 @@ class QMidiDevice(QObject):
 
 #### -STATIC
 
-	sigRecieved = Signal(list, int) #[data], stamp
 	sigConnectedState = Signal(bool, bool) #isOutput, stste
+	sigRecieved = Signal(list) #[data]
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigMissing = Signal(bool) #error at connecting, isOutput flag
 
@@ -168,7 +168,7 @@ class QMidiDevice(QObject):
 
 			for cCmd in midiCmdA:
 				#emitting signal from infinite loop(?) result in freezes
-				Thread(target=lambda:self.sigRecieved.emit(cCmd[0], cCmd[1])).start()
+				Thread(target=lambda:self.sigRecieved.emit(cCmd[0])).start()
 
 
 ### - private
