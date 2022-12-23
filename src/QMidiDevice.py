@@ -127,6 +127,7 @@ class QMidiDevice(QObject):
 
 #### -STATIC
 
+	sigRecieved = Signal(list, int) #[data], stamp
 	sigConnectedState = Signal(bool, bool) #isOutput, stste
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigMissing = Signal(bool) #error at connecting, isOutput flag
@@ -135,6 +136,7 @@ class QMidiDevice(QObject):
 	#name and in/out are remain unchanged and defines device at QMidiDevice.rescan()
 	pymidiName = '' #original device name
 
+	pymidiThreadIn = None #Input listening thread
 	pymidiIdIn = -1 #pymidi input device id if any
 	pymidiDeviceIn = None #assigned pymidi Input device instance
 	pymidiIdOut = -1 #output id
@@ -148,6 +150,24 @@ class QMidiDevice(QObject):
 
 		if _out==None or _out==False:
 			self.pymidiIdIn = _id
+
+
+
+	def _listen(self):
+		while self.isConnected(False):
+			midiCmdA = []
+
+			try:
+				if self.pymidiDeviceIn.poll():
+					midiCmdA = self.pymidiDeviceIn.read(1)
+
+			except:
+				self.disconnect(False)
+				return
+
+
+			for cCmd in midiCmdA:
+				self.sigRecieved.emit(cCmd[0],cCmd[1])
 
 
 
@@ -215,6 +235,7 @@ class QMidiDevice(QObject):
 				self.pymidiDeviceOut = pygame.midi.Output(self.pymidiIdOut)
 			else:
 				self.pymidiDeviceIn = pygame.midi.Input(self.pymidiIdIn)
+				self.pymidiThreadIn = Thread(target=self._listen, daemon=True).start()
 
 		except:
 			self.disconnect(_out)
