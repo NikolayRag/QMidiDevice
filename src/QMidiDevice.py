@@ -75,7 +75,7 @@ class QMidiDevice(QObject):
 		#mark all unplugged
 		for cDevice in QMidiDevice.DevicePool.values():
 			cDevice._plug() #reset id before sigConnectedState emit
-			cDevice.disconnect()
+			cDevice.disconnectPort()
 
 
 		pygame.midi.quit() #the only way to get actual device list
@@ -162,7 +162,7 @@ class QMidiDevice(QObject):
 					midiCmdA = self.pymidiDeviceIn.read(1)
 
 			except:
-				self.disconnect(False)
+				self.disconnectPort(False)
 				return
 
 
@@ -239,8 +239,8 @@ class QMidiDevice(QObject):
 				self.pymidiDeviceIn = pygame.midi.Input(self.pymidiIdIn)
 				self.pymidiThreadIn = Thread(target=self._listen, daemon=True).start()
 
-		except:
-			self.disconnect(_out)
+		except Exception as x:
+			self.disconnectPort(_out)
 			return
 
 
@@ -249,7 +249,7 @@ class QMidiDevice(QObject):
 
 
 
-	def disconnect(self, _out=None):
+	def disconnectPort(self, _out=None):
 		try:
 			if _out==None or _out==True:
 				self.pymidiDeviceOut and self.pymidiDeviceOut.close()
