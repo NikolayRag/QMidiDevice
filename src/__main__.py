@@ -25,6 +25,13 @@ class QMDDemo():
 
     #show MIDI devices
     def midiCollect(self,  _devices):
+        if self.midiFrom:
+            self.midiFrom.sigRecieved.disconnect()
+            self.midiFrom.disconnectPort(False)
+            self.midiFrom = None
+        if self.midiTo:
+            self.midiTo.disconnectPort(True)
+            self.midiTo = None
 
         self.wListDevices.clear()
 
