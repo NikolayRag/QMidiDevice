@@ -43,7 +43,7 @@ class QMDDemo():
 
         midiDev = cItem.data(Qt.UserRole)
         if midiDev:
-            midiDev.sigRecieved.connect(lambda v,s: self.midiPoke(v[1], v[2]))
+            midiDev.sigRecieved.connect(lambda v: self.midiPoke(v[1], v[2]))
             midiDev.connectPort(False)
 
 
