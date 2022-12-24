@@ -56,9 +56,9 @@ class QMDDemo():
                 self.midiFrom.disconnectPort(False)
 
             midiDev.sigRecieved.connect(lambda v: self.midiPoke(v[1], v[2]))
-            midiDev.connectPort(False)
 
-            self.midiFrom = midiDev
+        midiDev.connectPort(False)
+        self.midiFrom = midiDev
 
 
     
@@ -76,8 +76,8 @@ class QMDDemo():
         if midiDev and midiDev!=self.midiTo:
             self.midiTo and self.midiTo.disconnectPort(True)
 
-            midiDev.connectPort(True)
-            self.midiTo = midiDev
+        midiDev.connectPort(True)
+        self.midiTo = midiDev
 
 
 
