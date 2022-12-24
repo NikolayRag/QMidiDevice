@@ -280,6 +280,6 @@ class QMidiDevice(QObject):
 		try:
 			self.pymidiDeviceOut.write_short(cmd+channel, _ctrl, _val)
 		except Exception as x:
-			self.disconnect(True)
+			self.disconnectPort(True)
 
 			self.sigFail.emit(True)
