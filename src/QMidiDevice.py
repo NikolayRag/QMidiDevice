@@ -109,16 +109,12 @@ class QMidiDevicePool(QObject):
 		None
 
 
-#	'''
-#	Make duplicate list of all QMidiDevice pool.
-#	Returned QMidiDevice can be used to access one midi device in parallel.
-#	'''
-#	def clone():
-#		return dict(QMidiDevice.DevicePool)
 
 '''
 QMidiDevice is Rtmidi device wrapper.
+
 QMidiDevice is bound to MIDI device's input and output using device name.
+
 QMidiDevice instances are created once, reused while reconnection or rescanning.
 It is safe, and is proper use, not to release QMidiDevice in user app ever, if no need.
 
