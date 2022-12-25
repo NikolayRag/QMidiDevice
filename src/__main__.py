@@ -110,12 +110,12 @@ class QMDDemo():
         #QMidiDevice setup
 
         QMidiDevicePool.sigScanned.connect(self.midiCollect)
-        wBtnMidiScan.clicked.connect(QMidiDevicePool.rescan)
+        wBtnMidiScan.clicked.connect(QMidiDevicePool.maintain)
         wBtnMidiGet.clicked.connect(self.midiListen)
         wBtnMidiNext.clicked.connect(self.midiHold)
 
 
-        QMidiDevicePool.rescan()
+        QMidiDevicePool.maintain()
 
 
         #App run

@@ -31,7 +31,7 @@ class QMidiDevicePool(QObject):
 
 
 	'''
-	Static QMidiDevicePool.rescan()
+	Static QMidiDevicePool._rescan()
 	Rescan plugged MIDI devices and bind found ID's. This will make any used
 	 device outdated untill reconnected, as .quit() is neccessary for updating
 	 pygame.midi device list by it's design.
@@ -49,21 +49,7 @@ class QMidiDevicePool(QObject):
 	QMidiDevicePool.sigScanned signal is emitted as weell, providing devices dict.
 	'''
 
-	def rescan():
-#  todo 5 (decide, lowlevel) +0: reuse pygame.midi.Output/Input device
-		'''
-		todo: investigate reuse of (pypm.Output)pygame.midi.Output(id)._output
-		and (pypm.Input)pygame.midi.Input(id)._input objects after pygame.midi.rescan()
-		This probably can eliminate interrupt of Input/Output useage due to non-reconnection.
-		!Highly rely on portmidi!
-
-		Trace:
-		https://github.com/pygame/pygame/blob/main/src_py/midi.py
-		https://github.com/pygame/pygame/blob/main/src_c/pypm.c
-		https://github.com/PortMidi/portmidi/blob/master/pm_common/portmidi.c
-		'''
-
-
+	def _rescan():
 		#mark all unplugged
 		for cDevice in QMidiDevicePool.DevicePool.values():
 			cDevice._plug() #reset id before sigConnectedState emit
@@ -105,8 +91,9 @@ class QMidiDevicePool(QObject):
 
 
 	# rescan and reconnect by pulse period, if any
-	def maintain(_pulse=0):
-		None
+	def maintain(_pulse=None):
+		if not _pulse:
+			return QMidiDevicePool._rescan()
 
 
 
@@ -129,7 +116,7 @@ class QMidiDevice(QObject):
 	sigMissing = Signal(bool) #error at connecting, isOutput flag
 
 
-	#name and in/out are remain unchanged and defines device at QMidiDevice.rescan()
+	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
 	pymidiName = '' #original device name
 
 	pymidiThreadIn = None #Input listening thread
@@ -179,10 +166,10 @@ class QMidiDevice(QObject):
 
 	QMidiDevice lifetime:
 
-	* created by static QMidiDevice.rescan()
+	* created by static QMidiDevice._rescan()
 	* once created, actual for app lifetime
 	* connected automatically at use, or .connect() manually
-	* disconnects on errors, not-found state at QMidiDevice.rescan() ot manually
+	* disconnects on errors, not-found state at QMidiDevice._rescan() or manually
 
 	_name
 		unique device reference name, originally scanned vendor device name
