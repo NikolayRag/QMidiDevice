@@ -109,13 +109,13 @@ class QMDDemo():
 
         #QMidiDevice setup
 
-        QMidiDevice.sigScanned.connect(self.midiCollect)
-        wBtnMidiScan.clicked.connect(QMidiDevice.rescan)
+        QMidiDevicePool.sigScanned.connect(self.midiCollect)
+        wBtnMidiScan.clicked.connect(QMidiDevicePool.rescan)
         wBtnMidiGet.clicked.connect(self.midiListen)
         wBtnMidiNext.clicked.connect(self.midiHold)
 
 
-        QMidiDevice.rescan()
+        QMidiDevicePool.rescan()
 
 
         #App run

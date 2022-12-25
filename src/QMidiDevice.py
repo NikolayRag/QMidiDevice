@@ -6,7 +6,11 @@ import pygame.midi #   https://www.pygame.org/docs/   https://github.com/pygame/
 
 
 
-class QMidiDeviceMaintain(QObject):
+
+'''
+Dummy class for maintain static QMidiDevice.sigScanned signal
+'''
+class QMidiDeviceSignal(QObject):
 	sigScanned = Signal(dict) 
 
 
@@ -19,27 +23,15 @@ class QMidiDeviceMaintain(QObject):
 
 
 
-'''
-QMidiDevice is Pygame.midi device wrapper.
-
-QMidiDevice is bound to Input and/or Output midi device using midi device name.
-
-QMidiDevice instances are created once, reused while reconnection or rescanning.
-It is safe, and is proper use, not to release QMidiDevice in user app ever, if no need.
-
-'''
-class QMidiDevice(QObject):
-	MidiCC = 0xB0
-
-
-	MaintainObject = QMidiDeviceMaintain()
-	sigScanned = MaintainObject.sigScanned #alias
+class QMidiDevicePool(QObject):
+	Signal = QMidiDeviceSignal()
+	sigScanned = Signal.sigScanned
 
 	DevicePool = {} #static {name:QMidiDevice,..}
 
 
 	'''
-	Static QMidiDevice.rescan()
+	Static QMidiDevicePool.rescan()
 	Rescan plugged MIDI devices and bind found ID's. This will make any used
 	 device outdated untill reconnected, as .quit() is neccessary for updating
 	 pygame.midi device list by it's design.
@@ -54,7 +46,7 @@ class QMidiDevice(QObject):
 		Replugged device will reuse corresponding QMidiDevice, so QMidiDevice
 		 instance is safe for being lock-assigned by app.
 
-	QMidiDevice.sigScanned signal is emitted as weell, providing devices dict.
+	QMidiDevicePool.sigScanned signal is emitted as weell, providing devices dict.
 	'''
 
 	def rescan():
@@ -73,7 +65,7 @@ class QMidiDevice(QObject):
 
 
 		#mark all unplugged
-		for cDevice in QMidiDevice.DevicePool.values():
+		for cDevice in QMidiDevicePool.DevicePool.values():
 			cDevice._plug() #reset id before sigConnectedState emit
 			cDevice.disconnectPort()
 
@@ -87,27 +79,28 @@ class QMidiDevice(QObject):
 			devName = cDevInfo[1].decode('UTF-8')
 			devOut = cDevInfo[3]
 
-			if devName not in QMidiDevice.DevicePool:
+			if devName not in QMidiDevicePool.DevicePool:
 				cDevice = QMidiDevice(devName)
 
-				QMidiDevice.DevicePool[devName] = cDevice
+				QMidiDevicePool.DevicePool[devName] = cDevice
 
 			else: #reuse by (name, inout)
-				cDevice = QMidiDevice.DevicePool[devName]
+				cDevice = QMidiDevicePool.DevicePool[devName]
 
 
 			cDevice._plug(mN, devOut)
 
 
-		outList = QMidiDevice.midiList()
+		outList = QMidiDevicePool.midiList()
 		
-		QMidiDevice.MaintainObject.shout(outList)
+		QMidiDevicePool.sigScanned.emit(outList)
+
 		return outList
 
 
 
 	def midiList():
-		return dict(QMidiDevice.DevicePool)
+		return dict(QMidiDevicePool.DevicePool)
 
 
 
@@ -123,9 +116,16 @@ class QMidiDevice(QObject):
 #	def clone():
 #		return dict(QMidiDevice.DevicePool)
 
+'''
+QMidiDevice is Rtmidi device wrapper.
+QMidiDevice is bound to MIDI device's input and output using device name.
+QMidiDevice instances are created once, reused while reconnection or rescanning.
+It is safe, and is proper use, not to release QMidiDevice in user app ever, if no need.
 
+'''
+class QMidiDevice(QObject):
+	MidiCC = 0xB0
 
-#### -STATIC
 
 	sigRecieved = Signal(list) #[data]
 	sigConnectedState = Signal(bool, bool) #isOutput, state
