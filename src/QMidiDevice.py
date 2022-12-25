@@ -24,8 +24,8 @@ class QMidiDeviceSignal(QObject):
 
 
 class QMidiDevicePool(QObject):
-	Signal = QMidiDeviceSignal()
-	sigScanned = Signal.sigScanned
+	SignalAlias = QMidiDeviceSignal()
+	sigScanned = SignalAlias.sigScanned
 
 	DevicePool = {} #static {name:QMidiDevice,..}
 
