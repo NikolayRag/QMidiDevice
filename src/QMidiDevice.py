@@ -46,19 +46,14 @@ class QMidiDeviceSeer(QObject):
 #  todo 11 (plug) +0: allow similar names
 #  todo 10 (plug) +0: make case for replugging several devices with one name
 	'''
-	Rescan plugged MIDI devices and bind found ID's.
-	
-	return: {name:QMidiDevice,..} dict
-		Devices list is static QMidiDevice dict, referenced by name.
-		QMidiDevice added to this list at first time will be reused in
-		 subsequent and will remain till app end, even when completely unplugged.
-		Replugged device will reuse corresponding QMidiDevice, so QMidiDevice
-		 instance is safe for being lock-assigned by app.
+	Rescan plugged MIDI devices.
 	'''
 	def _rescan():
-		#In/Out ports for same device are independent of each other
 		devsAdded = {}
 		devsMissing = {}
+
+		#In/Out ports for same device are independent of each other,
+		# only collected within one device.
 		for obsObj, portIsOut in ((QMidiDeviceSeer.observerOut, True), (QMidiDeviceSeer.observerIn, False)):
 			devsAdded[portIsOut] = {} #to be filled
 			devsMissing[portIsOut] = QMidiDeviceSeer.midiList(portIsOut) #to be shrinked
@@ -107,7 +102,18 @@ class QMidiDeviceSeer(QObject):
 
 
 	'''
+	Return copy of device list.
 
+	Devices list is static QMidiDevice dict, referenced by name.
+	Replugged device will reuse corresponding QMidiDevice if any, so QMidiDevice
+	 instance is safe for being lock-assigned by app.
+
+		return: {name:QMidiDevice,..} dict
+
+		isOut
+			True: devices with outputs
+			False: devices with inputs
+			default None: all devices
 	'''
 	def midiList(isOut=None):
 		if isOut==None:
@@ -123,9 +129,17 @@ class QMidiDeviceSeer(QObject):
 
 
 	'''
-	Rescan by pulse period, or innstantly, cancelling pulse.
+	Rescan device list instantly or periodically.
 
-		_pulse: None, int seconds
+	Rescan results are emited with QT Signals:
+		sigScanned(dict): all devaices
+		sigAdded(dict, dict): outputs and inputs added from last rescan, accordingly
+		sigMissing(dict, dict): outputs and inputs missing from last rescan, accordingly
+
+
+		_pulse
+			default None: rescan instantly, returning dict as with .midiList()
+			int seconds: start recurring rescan every _pulse seconds.
 	'''
 	def maintain(_pulse=None):
 		def _cycleThread():
@@ -136,7 +150,7 @@ class QMidiDeviceSeer(QObject):
 
 
 		if not _pulse:
-			QMidiDeviceSeer.maintainPulse = 0 #cancel pulse
+			QMidiDeviceSeer.maintainPulse = 0 #cancel cycle
 
 			return QMidiDeviceSeer._rescan()
 
@@ -149,10 +163,13 @@ class QMidiDeviceSeer(QObject):
 
 
 
+
+
 '''
 QMidiDevice is Rtmidi device wrapper.
 
 QMidiDevice is bound to MIDI device's input and output using device name.
+One device can have one input and one output. (subj to change)
 
 QMidiDevice instances are created once, reused while reconnection or rescanning.
 It is safe, and is proper use, not to release QMidiDevice in user app ever, if no need.
