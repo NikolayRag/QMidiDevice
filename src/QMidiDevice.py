@@ -195,6 +195,7 @@ class QMidiDevice(QObject):
 
 
 	def _listen(self):
+		return
 		while self.isConnected(False):
 			midiCmdA = []
 
@@ -251,6 +252,7 @@ class QMidiDevice(QObject):
 		return self.isPluggedIn
 
 	def isPlugged(self, _out=True):
+		return
 		if _out:
 			return (self.pymidiIdOut >= 0)
 		else:
@@ -259,6 +261,7 @@ class QMidiDevice(QObject):
 
 
 	def isConnected(self, _out=True):
+		return
 		if _out:
 			return True if self.pymidiDeviceOut else self.pymidiDeviceOut
 		else:
@@ -272,6 +275,7 @@ class QMidiDevice(QObject):
 
 
 	def connectPort(self, _out=True):
+		return
 		if self.isConnected(_out):
 			return True
 
@@ -282,10 +286,10 @@ class QMidiDevice(QObject):
 
 
 		try:
-			if _out:
-				self.pymidiDeviceOut = pygame.midi.Output(self.pymidiIdOut)
-			else:
-				self.pymidiDeviceIn = pygame.midi.Input(self.pymidiIdIn)
+#			if _out:
+#				self.pymidiDeviceOut = pygame.midi.Output(self.pymidiIdOut)
+#			else:
+#				self.pymidiDeviceIn = pygame.midi.Input(self.pymidiIdIn)
 				self.pymidiThreadIn = Thread(target=self._listen, daemon=True).start()
 
 		except Exception as x:
@@ -299,6 +303,7 @@ class QMidiDevice(QObject):
 
 
 	def disconnectPort(self, _out=None):
+		return
 		try:
 			if _out==None or _out==True:
 				self.pymidiDeviceOut and self.pymidiDeviceOut.close()
@@ -316,6 +321,7 @@ class QMidiDevice(QObject):
 
 
 	def send(self, _ctrl, _val, channel=0, cmd=MidiCC):
+		return
 		if channel>16 or channel<0:
 			return
 		if not self.isPlugged(True):
