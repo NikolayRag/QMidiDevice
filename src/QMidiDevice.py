@@ -128,7 +128,7 @@ class QMidiDeviceSeer(QObject):
 		_pulse: None, int seconds
 	'''
 	def maintain(_pulse=None):
-		def _mThread():
+		def _cycleThread():
 			while QMidiDeviceSeer.maintainPulse:
 				QMidiDeviceSeer._rescan()
 
@@ -143,7 +143,7 @@ class QMidiDeviceSeer(QObject):
 
 		if not QMidiDeviceSeer.maintainPulse:
 			QMidiDeviceSeer.maintainPulse = _pulse
-			Thread(target=_mThread, daemon=True).start()
+			Thread(target=_cycleThread, daemon=True).start()
 
 		QMidiDeviceSeer.maintainPulse = _pulse
 
@@ -204,8 +204,11 @@ class QMidiDevice(QObject):
 			midiCmdA = []
 
 			try:
-				if self.pymidiDeviceIn.poll():
-					midiCmdA = self.pymidiDeviceIn.read(1)
+				if not self.pymidiDeviceIn.poll():
+					sleep(1e-12) #relax infinite loop
+					continue
+	
+				midiCmdA = self.pymidiDeviceIn.read(1)
 
 			except:
 				self.disconnectPort(False)
