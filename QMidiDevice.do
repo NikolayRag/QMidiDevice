@@ -13,9 +13,12 @@
 +api 9: +0 "src\QMidiDevice.py" Ki 22/12/28 06:33:19
 	make QMidiDeviceSeer singletone maintainer
 
- plug 10: +0 "src\QMidiDevice.py" Ki 22/12/26 23:54:45
+ plug, features 10: +0 "src\QMidiDevice.py" Ki 22/12/28 14:00:22
 	make case for replugging several devices with one name
 
- plug 11: +0 "src\QMidiDevice.py" Ki 22/12/28 03:40:15
+ plug, features 11: +0 "src\QMidiDevice.py" Ki 22/12/28 14:00:19
 	allow similar names
+
+ features 12: +0 "src\QMidiDevice.py" Ki 22/12/28 14:00:45
+	allow device to have multiple In's and Out's
 
