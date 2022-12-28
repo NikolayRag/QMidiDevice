@@ -1,9 +1,9 @@
 from PySide2.QtCore import *
 from threading import *
+from time import *
 
 
-import pygame.midi #   https://www.pygame.org/docs/   https://github.com/pygame/pygame
-
+import rtmidi
 
 
 
@@ -11,23 +11,34 @@ import pygame.midi #   https://www.pygame.org/docs/   https://github.com/pygame/
 Dummy class for maintain static QMidiDevice.sigScanned signal
 '''
 class QMidiDeviceSignal(QObject):
-	sigScanned = Signal(dict) 
+	sigScanned = Signal(dict) #all devices
+	sigAdded = Signal(dict, dict) #added outputs and inputs
+	sigMissing = Signal(dict, dict) #missing outputs and inputs
 
 
 	def __init__(self):
 		QObject.__init__(self)
 
 
-	def shout(self, _devices):
-		self.sigScanned.emit(_devices)
 
-
-
-class QMidiDevicePool(QObject):
+#MIDI device pool maintainer singletone
+class QMidiDeviceSeer(QObject):
 	SignalAlias = QMidiDeviceSignal()
+
 	sigScanned = SignalAlias.sigScanned
+	sigAdded = SignalAlias.sigAdded
+	sigMissing = SignalAlias.sigMissing
+
+
+	#dummy port listeners
+	observerIn = rtmidi.MidiIn()
+	observerOut = rtmidi.MidiOut()
 
 	DevicePool = {} #static {name:QMidiDevice,..}
+
+
+	maintainPulse = 0
+
 
 
 	'''
@@ -50,50 +61,93 @@ class QMidiDevicePool(QObject):
 	'''
 
 	def _rescan():
-		#mark all unplugged
-		for cDevice in QMidiDevicePool.DevicePool.values():
-			cDevice._plug() #reset id before sigConnectedState emit
-			cDevice.disconnectPort()
+		#In/Out ports for same device are independent of each other
+		devsAdded = {}
+		devsMissing = {}
+		for obsObj, portIsOut in ((QMidiDeviceSeer.observerOut, True), (QMidiDeviceSeer.observerIn, False)):
+			devsAdded[portIsOut] = {}
+			devsMissing[portIsOut] = QMidiDeviceSeer.midiList(portIsOut)
 
 
-		pygame.midi.quit() #the only way to get actual device list
-		pygame.midi.init()
+			for cPort in range(obsObj.get_port_count()):
+				devName = obsObj.get_port_name(cPort)
+				devName = ' '.join(devName.split(' ')[:-1])
+
+				if devName in devsMissing[portIsOut]: del devsMissing[portIsOut][devName]
 
 
-		for mN in range(pygame.midi.get_count()):
-			cDevInfo = pygame.midi.get_device_info(mN)
-			devName = cDevInfo[1].decode('UTF-8')
-			devOut = cDevInfo[3]
+				#new device
+				if devName not in QMidiDeviceSeer.DevicePool:
+					QMidiDeviceSeer.DevicePool[devName] = QMidiDevice(devName)
 
-			if devName not in QMidiDevicePool.DevicePool:
-				cDevice = QMidiDevice(devName)
+				cDevice = QMidiDeviceSeer.DevicePool[devName]
 
-				QMidiDevicePool.DevicePool[devName] = cDevice
+				pluggedFn = cDevice.pluggedOut if portIsOut else cDevice.pluggedIn
+				if not pluggedFn():
+					devsAdded[portIsOut][devName] = cDevice
 
-			else: #reuse by (name, inout)
-				cDevice = QMidiDevicePool.DevicePool[devName]
-
-
-			cDevice._plug(mN, devOut)
+				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
+				plugFn(True)
 
 
-		outList = QMidiDevicePool.midiList()
-		
-		QMidiDevicePool.sigScanned.emit(outList)
+			#accidentally missing
+			for cDev in devsMissing[portIsOut].values():
+				plugFn = cDev._plugOut if portIsOut else cDev._plugIn
+				plugFn(False)
+
+
+		if devsAdded[True] or devsAdded[False]:
+			QMidiDeviceSeer.sigAdded.emit(devsAdded[True], devsAdded[False])
+		if devsMissing[True] or devsMissing[False]:
+			QMidiDeviceSeer.sigMissing.emit(devsMissing[True], devsMissing[False])
+			
+
+		outList = QMidiDeviceSeer.midiList()
+		QMidiDeviceSeer.sigScanned.emit(outList)
 
 		return outList
 
 
 
-	def midiList():
-		return dict(QMidiDevicePool.DevicePool)
+	'''
+
+	'''
+	def midiList(isOut=None):
+		if isOut==None:
+			return dict(QMidiDeviceSeer.DevicePool)
+
+
+		return {
+			dName:dObj for dName,dObj in QMidiDeviceSeer.DevicePool.items() if (
+				dObj.pluggedOut() if isOut else dObj.pluggedIn()
+			)
+		}
+
+
+
 
 
 
 	# rescan and reconnect by pulse period, if any
 	def maintain(_pulse=None):
+		def _mThread():
+			while QMidiDeviceSeer.maintainPulse:
+				QMidiDeviceSeer._rescan()
+
+				sleep(QMidiDeviceSeer.maintainPulse)
+
+
 		if not _pulse:
-			return QMidiDevicePool._rescan()
+			QMidiDeviceSeer.maintainPulse = 0 #cancel pulse
+
+			return QMidiDeviceSeer._rescan()
+
+
+		if not QMidiDeviceSeer.maintainPulse:
+			QMidiDeviceSeer.maintainPulse = _pulse
+			Thread(target=_mThread, daemon=True).start()
+
+		QMidiDeviceSeer.maintainPulse = _pulse
 
 
 
@@ -119,6 +173,11 @@ class QMidiDevice(QObject):
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
 	pymidiName = '' #original device name
 
+
+	isPluggedOut = False
+	isPluggedIn = False
+
+
 	pymidiThreadIn = None #Input listening thread
 	pymidiIdIn = -1 #pymidi input device id if any
 	pymidiDeviceIn = None #assigned pymidi Input device instance
@@ -127,12 +186,11 @@ class QMidiDevice(QObject):
 	
 
 
-	def _plug(self, _id=-1, _out=None):
-		if _out==None or _out==True:
-			self.pymidiIdOut = _id
+	def _plugOut(self, _state=False):
+		self.isPluggedOut = _state
 
-		if _out==None or _out==False:
-			self.pymidiIdIn = _id
+	def _plugIn(self, _state=False):
+		self.isPluggedIn = _state
 
 
 
@@ -184,6 +242,14 @@ class QMidiDevice(QObject):
 
 
 	#visible by pygame.midi last time
+	def pluggedOut(self):
+		return self.isPluggedOut
+
+
+
+	def pluggedIn(self):
+		return self.isPluggedIn
+
 	def isPlugged(self, _out=True):
 		if _out:
 			return (self.pymidiIdOut >= 0)
