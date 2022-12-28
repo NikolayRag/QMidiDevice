@@ -43,6 +43,8 @@ class QMidiDeviceSeer(QObject):
 
 
 
+#  todo 11 (plug) +0: allow similar names
+#  todo 10 (plug) +0: make case for replugging several devices with one name
 	'''
 	Rescan plugged MIDI devices and bind found ID's.
 	
