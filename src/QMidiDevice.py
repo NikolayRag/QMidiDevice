@@ -60,13 +60,13 @@ class QMidiDeviceSeer(QObject):
 		devsAdded = {}
 		devsMissing = {}
 		for obsObj, portIsOut in ((QMidiDeviceSeer.observerOut, True), (QMidiDeviceSeer.observerIn, False)):
-			devsAdded[portIsOut] = {}
-			devsMissing[portIsOut] = QMidiDeviceSeer.midiList(portIsOut)
+			devsAdded[portIsOut] = {} #to be filled
+			devsMissing[portIsOut] = QMidiDeviceSeer.midiList(portIsOut) #to be shrinked
 
 
 			for cPort in range(obsObj.get_port_count()):
 				devName = obsObj.get_port_name(cPort)
-				devName = ' '.join(devName.split(' ')[:-1])
+				devName = ' '.join(devName.split(' ')[:-1]) #remove rtmidi id from name
 
 				if devName in devsMissing[portIsOut]: del devsMissing[portIsOut][devName]
 
