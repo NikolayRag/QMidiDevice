@@ -36,7 +36,7 @@ class QMDDemo():
         self.wListDevices.clear()
 
         for cDev in _devices.values():
-            devName = f"{'in' if cDev.isPlugged(False) else '--'} {'out' if cDev.isPlugged(True) else '--'}: {cDev.getName()}"
+            devName = f"{'in' if cDev.pluggedIn() else '--'} {'out' if cDev.pluggedOut() else '--'}: {cDev.getName()}"
             cItem = QListWidgetItem(devName)
             cItem.setData(Qt.UserRole, cDev)
 
@@ -97,25 +97,23 @@ class QMDDemo():
         self.wListDevices = QListWidget()
         layMain.addWidget(self.wListDevices)
 
-        wBtnMidiScan = QPushButton('Scan devices')
-        layMain.addWidget(wBtnMidiScan)
-
 
         wBtnMidiGet = QPushButton('Listen')
-        layMain.addWidget(wBtnMidiGet)
+#        layMain.addWidget(wBtnMidiGet)
         wBtnMidiNext = QPushButton('Sink')
-        layMain.addWidget(wBtnMidiNext)
+#        layMain.addWidget(wBtnMidiNext)
 
 
         #QMidiDevice setup
 
-        QMidiDevicePool.sigScanned.connect(self.midiCollect)
-        wBtnMidiScan.clicked.connect(QMidiDevicePool.maintain)
+        QMidiDeviceSeer.sigScanned.connect(self.midiCollect)
+        QMidiDeviceSeer.sigAdded.connect(lambda _out, _in: print(f"add:\n out {_out},\n in {_in}"))
+        QMidiDeviceSeer.sigMissing.connect(lambda _out, _in: print(f"miss:\n out {_out},\n in {_in}"))
         wBtnMidiGet.clicked.connect(self.midiListen)
         wBtnMidiNext.clicked.connect(self.midiHold)
 
 
-        QMidiDevicePool.maintain()
+        QMidiDeviceSeer.maintain(1)
 
 
         #App run
