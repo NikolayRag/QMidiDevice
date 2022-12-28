@@ -3,12 +3,14 @@ from threading import *
 from time import *
 
 
+# https://pypi.org/project/python-rtmidi/
+# https://github.com/SpotlightKid/python-rtmidi
 import rtmidi
 
 
 
 '''
-Dummy class for maintain static QMidiDevice.sigScanned signal
+Dummy class for maintain static QMidiDevice signals
 '''
 class QMidiDeviceSignal(QObject):
 	sigScanned = Signal(dict) #all devices
@@ -34,7 +36,7 @@ class QMidiDeviceSeer(QObject):
 	observerIn = rtmidi.MidiIn()
 	observerOut = rtmidi.MidiOut()
 
-	DevicePool = {} #static {name:QMidiDevice,..}
+	DevicePool = {} #{name:QMidiDevice,..}
 
 
 	maintainPulse = 0
@@ -42,24 +44,15 @@ class QMidiDeviceSeer(QObject):
 
 
 	'''
-	Static QMidiDevicePool._rescan()
-	Rescan plugged MIDI devices and bind found ID's. This will make any used
-	 device outdated untill reconnected, as .quit() is neccessary for updating
-	 pygame.midi device list by it's design.
+	Rescan plugged MIDI devices and bind found ID's.
 	
-#	Auto-reconnection will be forced immediately, but devices may react
-#	at reconnection in specific way like lagging.
-
 	return: {name:QMidiDevice,..} dict
 		Devices list is static QMidiDevice dict, referenced by name.
 		QMidiDevice added to this list at first time will be reused in
-		 subsequent and will remain till app end,even when completely unplugged.
+		 subsequent and will remain till app end, even when completely unplugged.
 		Replugged device will reuse corresponding QMidiDevice, so QMidiDevice
 		 instance is safe for being lock-assigned by app.
-
-	QMidiDevicePool.sigScanned signal is emitted as weell, providing devices dict.
 	'''
-
 	def _rescan():
 		#In/Out ports for same device are independent of each other
 		devsAdded = {}
@@ -125,10 +118,11 @@ class QMidiDeviceSeer(QObject):
 
 
 
+	'''
+	Rescan by pulse period, or innstantly, cancelling pulse.
 
-
-
-	# rescan and reconnect by pulse period, if any
+		_pulse: None, int seconds
+	'''
 	def maintain(_pulse=None):
 		def _mThread():
 			while QMidiDeviceSeer.maintainPulse:
@@ -189,8 +183,14 @@ class QMidiDevice(QObject):
 	def _plugOut(self, _state=False):
 		self.isPluggedOut = _state
 
+
+
 	def _plugIn(self, _state=False):
 		self.isPluggedIn = _state
+
+
+
+	#-rtmidi
 
 
 
@@ -217,11 +217,7 @@ class QMidiDevice(QObject):
 
 
 	'''
-	pygame.midi wrapper.
-	pygame.midi device is going to be in connected state,
-	 as connection dont poke or block actual MIDI device,
-	 according to current pymidi implementation(?).
-
+	rtmidi wrapper.
 
 	QMidiDevice lifetime:
 
@@ -242,7 +238,6 @@ class QMidiDevice(QObject):
 
 
 
-	#visible by pygame.midi last time
 	def pluggedOut(self):
 		return self.isPluggedOut
 
@@ -250,6 +245,12 @@ class QMidiDevice(QObject):
 
 	def pluggedIn(self):
 		return self.isPluggedIn
+
+
+
+	#-rtmidi
+	
+
 
 	def isPlugged(self, _out=True):
 		return
