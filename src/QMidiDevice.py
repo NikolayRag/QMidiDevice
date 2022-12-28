@@ -75,14 +75,16 @@ class QMidiDeviceSeer(QObject):
 				if devName not in QMidiDeviceSeer.DevicePool:
 					QMidiDeviceSeer.DevicePool[devName] = QMidiDevice(devName)
 
+
 				cDevice = QMidiDeviceSeer.DevicePool[devName]
 
 				pluggedFn = cDevice.pluggedOut if portIsOut else cDevice.pluggedIn
+				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
+
 				if not pluggedFn():
 					devsAdded[portIsOut][devName] = cDevice
 
-				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
-				plugFn(True)
+					plugFn(True)
 
 
 			#accidentally missing
@@ -251,7 +253,7 @@ class QMidiDevice(QObject):
 
 
 	#-rtmidi
-	
+
 
 
 	def isPlugged(self, _out=True):
