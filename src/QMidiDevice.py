@@ -45,7 +45,13 @@ class QMidiDeviceSeer(QObject):
 
 #  todo 11 (plug, features) +0: allow similar names
 #  todo 10 (plug, features) +0: make case for replugging several devices with one name
+# rename ports to be sequental for each unique name
+# "dev1 0", "devA 1", "dev1 2", "devA 3" ->
+# "dev1", "devA", "dev1 (2)", "devA (2)"
+
 #  todo 12 (features) +0: allow device to have multiple In's and Out's
+
+
 	'''
 	Rescan plugged MIDI devices.
 	'''
