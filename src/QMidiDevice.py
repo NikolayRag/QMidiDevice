@@ -187,7 +187,7 @@ class QMidiDevice(QObject):
 
 
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
-	pymidiName = '' #original device name
+	midiName = '' #original device name
 
 
 	isPluggedOut = False
@@ -259,7 +259,7 @@ class QMidiDevice(QObject):
 	def __init__(self, _name):
 		QObject.__init__(self)
 
-		self.pymidiName = _name
+		self.midiName = _name
 
 
 
@@ -296,7 +296,7 @@ class QMidiDevice(QObject):
 
 
 	def getName(self):
-		return self.pymidiName
+		return self.midiName
 
 
 
