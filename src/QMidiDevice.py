@@ -56,21 +56,19 @@ class QMidiDeviceSeer(QObject):
 	Rescan plugged MIDI devices.
 	'''
 	def _rescan():
-		devsAdded = {}
-		devsMissing = {}
 
 		#In/Out ports for same device are independent of each other,
 		# only collected within one device.
 		for obsObj, portIsOut in ((QMidiDeviceSeer.observerOut, True), (QMidiDeviceSeer.observerIn, False)):
-			devsAdded[portIsOut] = {} #to be filled
-			devsMissing[portIsOut] = QMidiDeviceSeer.midiList(portIsOut) #to be shrinked
+			devsAdded = {} #to be filled
+			devsMissing = QMidiDeviceSeer.midiList(portIsOut) #to be shrinked
 
 
 			for cPort in range(obsObj.get_port_count()):
 				devName = obsObj.get_port_name(cPort)
 				devName = ' '.join(devName.split(' ')[:-1]) #remove rtmidi id from name
 
-				if devName in devsMissing[portIsOut]: del devsMissing[portIsOut][devName]
+				if devName in devsMissing: del devsMissing[devName]
 
 
 				#new device
@@ -84,21 +82,21 @@ class QMidiDeviceSeer(QObject):
 				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
 
 				if not pluggedFn():
-					devsAdded[portIsOut][devName] = cDevice
+					devsAdded[devName] = cDevice
 
 					plugFn(True)
 
 
 			#accidentally missing
-			for cDev in devsMissing[portIsOut].values():
+			for cDev in devsMissing.values():
 				plugFn = cDev._plugOut if portIsOut else cDev._plugIn
 				plugFn(False)
 
 
-		if devsAdded[True] or devsAdded[False]:
-			QMidiDeviceSeer.sigAdded.emit(devsAdded[True], devsAdded[False])
-		if devsMissing[True] or devsMissing[False]:
-			QMidiDeviceSeer.sigMissing.emit(devsMissing[True], devsMissing[False])
+			if devsAdded:
+				QMidiDeviceSeer.sigAdded.emit(portIsOut, devsAdded)
+			if devsMissing:
+				QMidiDeviceSeer.sigMissing.emit(portIsOut, devsMissing)
 			
 
 		outList = QMidiDeviceSeer.midiList()
@@ -269,31 +267,36 @@ class QMidiDevice(QObject):
 
 
 
+	def getName(self):
+		return self.midiName
+
+
+
+	'''
+	Device have Out port
+	'''
 	def pluggedOut(self):
-		return self.isPluggedOut
+		if not self._isPlugged():
+			return
+
+		return bool(self.portsOut)
 
 
 
+	'''
+	Device have In port
+	'''
 	def pluggedIn(self):
-		return self.isPluggedIn
+		if not self._isPlugged():
+			return
+
+		return bool(self.portsIn)
 
 
 
-	#-rtmidi
-
-
-
-	def isPlugged(self, _out=True):
-		return
-		if _out:
-			return (self.pymidiIdOut >= 0)
-		else:
-			return (self.pymidiIdIn >= 0)
-
-
-
-	def isConnected(self, _out=True):
-		return
+#	def isConnectedIn(self, _out=True):
+	def isConnectedOut(self):
+#		if not self.pluggedOut()
 		if _out:
 			return True if self.pymidiDeviceOut else self.pymidiDeviceOut
 		else:
@@ -301,36 +304,8 @@ class QMidiDevice(QObject):
 
 
 
-	def getName(self):
-		return self.midiName
-
-
-
-	def connectPort(self, _out=True):
-		return
-		if self.isConnected(_out):
-			return True
-
-
-		if not self.isPlugged(_out):
-			self.sigMissing.emit(_out)
-			return
-
-
-		try:
-#			if _out:
-#				self.pymidiDeviceOut = pygame.midi.Output(self.pymidiIdOut)
-#			else:
-#				self.pymidiDeviceIn = pygame.midi.Input(self.pymidiIdIn)
-				self.pymidiThreadIn = Thread(target=self._listen, daemon=True).start()
-
-		except Exception as x:
-			self.disconnectPort(_out)
-			return
-
-
-		self.sigConnectedState.emit(_out, True)
-		return True
+#	def connectIn(self):
+#	def connectOut(self):
 
 
 

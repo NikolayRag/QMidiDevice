@@ -107,8 +107,8 @@ class QMDDemo():
         #QMidiDevice setup
 
         QMidiDeviceSeer.sigScanned.connect(self.midiCollect)
-        QMidiDeviceSeer.sigAdded.connect(lambda _out, _in: print(f"add:\n out {_out},\n in {_in}"))
-        QMidiDeviceSeer.sigMissing.connect(lambda _out, _in: print(f"miss:\n out {_out},\n in {_in}"))
+        QMidiDeviceSeer.sigAdded.connect(lambda _isout, _devs: print(f"add {'out' if _isout else 'in'}:\n {_devs}"))
+        QMidiDeviceSeer.sigMissing.connect(lambda _isout, _devs: print(f"miss {'out' if _isout else 'in'}:\n {_devs}"))
         wBtnMidiGet.clicked.connect(self.midiListen)
         wBtnMidiNext.clicked.connect(self.midiHold)
 
