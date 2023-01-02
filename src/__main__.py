@@ -25,6 +25,7 @@ class QMDDemo():
 
     #show MIDI devices
     def midiCollect(self,  _devices):
+        iSelected = self.wListDevices.currentRow()
         self.wListDevices.clear()
 
         for cDev in _devices:
@@ -33,6 +34,9 @@ class QMDDemo():
             cItem.setData(Qt.UserRole, cDev)
 
             self.wListDevices.addItem(cItem)
+
+        if _devices:
+            self.wListDevices.setCurrentRow(iSelected)
 
 
 
@@ -107,7 +111,7 @@ class QMDDemo():
         wBtnMidiNext.clicked.connect(self.midiHold)
 
 
-        QMidiDeviceSeer.maintain(5)
+        QMidiDeviceSeer.maintain(1)
 
 
         #App run
