@@ -26,7 +26,7 @@ class QMidiDeviceSignal(QObject):
 
 
 #MIDI device pool maintainer singletone
-class QMidiDeviceSeer(QObject):
+class QMidiDeviceMonitor(QObject):
 	SignalAlias = QMidiDeviceSignal()
 
 	sigScanned = SignalAlias.sigScanned
@@ -70,22 +70,22 @@ class QMidiDeviceSeer(QObject):
 # =todo 14 (scan) +0: Rescan unnamed device list
 	def _rescan():
 		def devSearch(_name):
-			for cDev in QMidiDeviceSeer.DevicePool:
+			for cDev in QMidiDeviceMonitor.DevicePool:
 				if cDev.getName()==_name:
 					return cDev
 
 
 		def devSigTransit (_dev):
 			_dev.sigPlugged.connect(lambda _out, _state:
-				(QMidiDeviceSeer.sigAdded if _state else QMidiDeviceSeer.sigMissing).emit(_dev, _out)
+				(QMidiDeviceMonitor.sigAdded if _state else QMidiDeviceMonitor.sigMissing).emit(_dev, _out)
 			)
 
 
 		#In/Out ports for same device are independent of each other,
 		# only collected within one device.
 		logging.info("\n--- rescan")
-		for obsObj, portIsOut in ((QMidiDeviceSeer.observerOut, True), (QMidiDeviceSeer.observerIn, False)):
-			devsMissing = QMidiDeviceSeer.midiList(portIsOut) #to be shrinked
+		for obsObj, portIsOut in ((QMidiDeviceMonitor.observerOut, True), (QMidiDeviceMonitor.observerIn, False)):
+			devsMissing = QMidiDeviceMonitor.midiList(portIsOut) #to be shrinked
 			logging.info(f"{'out' if portIsOut else 'in'} with {[d.getName() for d in devsMissing]}")
 			for cPort in range(obsObj.get_port_count()):
 				cPortName = obsObj.get_port_name(cPort)
@@ -99,7 +99,7 @@ class QMidiDeviceSeer(QObject):
 					cDevice = QMidiDevice(devName)
 					devSigTransit(cDevice)
 
-					QMidiDeviceSeer.DevicePool += [cDevice]
+					QMidiDeviceMonitor.DevicePool += [cDevice]
 
 
 				pluggedFn = cDevice.pluggedOut if portIsOut else cDevice.pluggedIn
@@ -118,8 +118,8 @@ class QMidiDeviceSeer(QObject):
 				plugFn(False)
 
 
-		outList = QMidiDeviceSeer.midiList()
-		QMidiDeviceSeer.sigScanned.emit(outList)
+		outList = QMidiDeviceMonitor.midiList()
+		QMidiDeviceMonitor.sigScanned.emit(outList)
 
 		return outList
 
@@ -141,11 +141,11 @@ class QMidiDeviceSeer(QObject):
 	'''
 	def midiList(isOut=None):
 		if isOut==None:
-			return list(QMidiDeviceSeer.DevicePool)
+			return list(QMidiDeviceMonitor.DevicePool)
 
 
 		return [
-			dObj for dObj in QMidiDeviceSeer.DevicePool if (
+			dObj for dObj in QMidiDeviceMonitor.DevicePool if (
 				dObj.pluggedOut() if isOut else dObj.pluggedIn()
 			)
 		]
@@ -169,23 +169,23 @@ class QMidiDeviceSeer(QObject):
 # -todo 15 (issue) +0: prevent multi-start
 	def maintain(_pulse=None):
 		def _cycleThread():
-			while QMidiDeviceSeer.maintainPulse:
-				QMidiDeviceSeer._rescan()
+			while QMidiDeviceMonitor.maintainPulse:
+				QMidiDeviceMonitor._rescan()
 
-				sleep(QMidiDeviceSeer.maintainPulse)
+				sleep(QMidiDeviceMonitor.maintainPulse)
 
 
 		if not _pulse:
-			QMidiDeviceSeer.maintainPulse = 0 #cancel cycle
+			QMidiDeviceMonitor.maintainPulse = 0 #cancel cycle
 
-			return QMidiDeviceSeer._rescan()
+			return QMidiDeviceMonitor._rescan()
 
 
-		if not QMidiDeviceSeer.maintainPulse:
-			QMidiDeviceSeer.maintainPulse = _pulse
+		if not QMidiDeviceMonitor.maintainPulse:
+			QMidiDeviceMonitor.maintainPulse = _pulse
 			Thread(target=_cycleThread, daemon=True).start()
 
-		QMidiDeviceSeer.maintainPulse = _pulse
+		QMidiDeviceMonitor.maintainPulse = _pulse
 
 
 
