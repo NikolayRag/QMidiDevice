@@ -221,13 +221,6 @@ class QMidiDevice(QObject):
 	portsIn = None
 
 
-	pymidiThreadIn = None #Input listening thread
-	pymidiIdIn = -1 #pymidi input device id if any
-	pymidiDeviceIn = None #assigned pymidi Input device instance
-	pymidiIdOut = -1 #output id
-	pymidiDeviceOut = None #Output device
-	
-
 
 	def _plugOut(self, _state=False):
 		newPort = [rtmidi.MidiOut()] if _state else []
@@ -254,30 +247,36 @@ class QMidiDevice(QObject):
 
 
 
-	#-rtmidi
+	def _listen(self,_data,_):
+		self.sigRecieved.emit(_data[0])
 
 
 
-	def _listen(self):
-		return
-		while self.isConnected(False):
-			midiCmdA = []
-
-			try:
-				if not self.pymidiDeviceIn.poll():
-					sleep(1e-12) #relax infinite loop
-					continue
-	
-				midiCmdA = self.pymidiDeviceIn.read(1)
-
-			except:
-				self.disconnectPort(False)
-				return
+	'''
+	Connect present ports using device name
+	'''
+	def _connect(self, _out=True):
+		portTest = self.portsOut if _out else self.portsIn
+		if not portTest:
+			return
 
 
-			for cCmd in midiCmdA:
-				#emitting signal directly from infinite loop(?) results in slot freezes
-				Thread(target=lambda:self.sigRecieved.emit(cCmd[0])).start()
+		for cPort in range(portTest[0].get_port_count()):
+			portName = portTest[0].get_port_name(cPort)
+			if self.getName() == ' '.join(portName.split(' ')[:-1]):
+
+				try:
+					portTest[0].open_port(cPort)
+					if not _out:
+						portTest[0].set_callback(self._listen)
+
+				except Exception as x:
+					return
+
+
+				self.sigConnected.emit(_out, True)
+				return True
+
 
 
 ### - private
@@ -334,54 +333,73 @@ class QMidiDevice(QObject):
 
 
 
-#	def isConnectedIn(self, _out=True):
 	def isConnectedOut(self):
-#		if not self.pluggedOut()
-		if _out:
-			return True if self.pymidiDeviceOut else self.pymidiDeviceOut
-		else:
-			return True if self.pymidiDeviceIn else self.pymidiDeviceIn
+		return self.portsOut and self.portsOut[0].is_port_open()
 
 
 
-#	def connectIn(self):
-#	def connectOut(self):
+	def isConnectedIn(self):
+		return self.portsIn and self.portsIn[0].is_port_open()
 
 
 
-	def disconnectPort(self, _out=None):
-		return
+	def connectOut(self):
+		if not self.pluggedOut():
+			return
+		if self.isConnectedOut():
+			return True
+
+		return self._connect(True)
+
+
+
+	def connectIn(self):
+		if not self.pluggedIn():
+			return
+
+		if self.isConnectedIn():
+			return True
+
+		return self._connect(False)
+
+
+
+	def disconnectOut(self):
+		self._disconnect(True)
+
+
+
+	def disconnectIn(self):
+		self._disconnect(False)
+
+
+
+	def _disconnect(self, _out):
+		portTest = self.portsOut if _out else self.portsIn
+		if not portTest:
+			return
+
 		try:
-			if _out==None or _out==True:
-				self.pymidiDeviceOut and self.pymidiDeviceOut.close()
-				self.pymidiDeviceOut = None
-
-			if _out==None or _out==False:
-				self.pymidiDeviceIn and self.pymidiDeviceIn.close()
-				self.pymidiDeviceIn = None
+			portTest.cloase_port()
 		except:
 			None
 
 
-		self.sigConnectedState.emit(_out, False)
+		self.sigConnected.emit(_out, False)
 
 
 
 	def send(self, _ctrl, _val, channel=0, cmd=MidiCC):
-		return
 		if channel>16 or channel<0:
 			return
-		if not self.isPlugged(True):
-			return
 
-
-		if not self.connectPort(True):
+		if not self.connectOut():
 			return
 
 
 		try:
-			self.pymidiDeviceOut.write_short(cmd+channel, _ctrl, _val)
+			self.portsOut[0].send_message([cmd+channel, _ctrl, _val])
 		except Exception as x:
-			self.disconnectPort(True)
+			self.disconnectOut()
 
 			self.sigFail.emit(True)

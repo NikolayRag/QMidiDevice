@@ -25,14 +25,6 @@ class QMDDemo():
 
     #show MIDI devices
     def midiCollect(self,  _devices):
-        if self.midiFrom:
-            self.midiFrom.sigRecieved.disconnect()
-            self.midiFrom.disconnectPort(False)
-            self.midiFrom = None
-        if self.midiTo:
-            self.midiTo.disconnectPort(True)
-            self.midiTo = None
-
         self.wListDevices.clear()
 
         for cDev in _devices:
@@ -53,16 +45,18 @@ class QMDDemo():
         if midiDev and midiDev!=self.midiFrom:
             if self.midiFrom:
                 self.midiFrom.sigRecieved.disconnect()
-                self.midiFrom.disconnectPort(False)
+                self.midiFrom.disconnectIn()
 
             midiDev.sigRecieved.connect(lambda v: self.midiPoke(v[1], v[2]))
 
-        midiDev.connectPort(False)
+        midiDev.connectIn()
         self.midiFrom = midiDev
 
 
     
     def midiPoke(self, _ctrl, _val):
+        print(f" echo {_ctrl}: {_val}")
+
         self.midiTo and self.midiTo.send(_ctrl, _val)
 
 
@@ -74,9 +68,9 @@ class QMDDemo():
 
         midiDev = cItem.data(Qt.UserRole)
         if midiDev and midiDev!=self.midiTo:
-            self.midiTo and self.midiTo.disconnectPort(True)
+            self.midiTo and self.midiTo.disconnectOut()
 
-        midiDev.connectPort(True)
+        midiDev.connectOut()
         self.midiTo = midiDev
 
 
@@ -99,9 +93,9 @@ class QMDDemo():
 
 
         wBtnMidiGet = QPushButton('Listen')
-#        layMain.addWidget(wBtnMidiGet)
+        layMain.addWidget(wBtnMidiGet)
         wBtnMidiNext = QPushButton('Sink')
-#        layMain.addWidget(wBtnMidiNext)
+        layMain.addWidget(wBtnMidiNext)
 
 
         #QMidiDevice setup
@@ -113,7 +107,7 @@ class QMDDemo():
         wBtnMidiNext.clicked.connect(self.midiHold)
 
 
-        QMidiDeviceSeer.maintain(1)
+        QMidiDeviceSeer.maintain(5)
 
 
         #App run
