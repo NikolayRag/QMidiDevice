@@ -28,8 +28,8 @@
 =scan 14: +0 "src\QMidiDevice.py" Ki 22/12/30 02:39:16
 	Rescan unnamed device list
 
--issue 15: +0 "src\QMidiDevice.py" Ki 23/01/02 03:54:09
-	prevent multi-start
+-issue 15: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/02 22:43:05
+	blank maintain() cause multi-start
 
 !demo 16: +0 "src\__main__.py" Ki 23/01/02 06:29:34
 	dont reset 
