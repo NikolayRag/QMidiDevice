@@ -67,6 +67,7 @@ class QMidiDeviceSeer(QObject):
 			* Create if new name
 		* Unplug missing
 	'''
+# =todo 14 (scan) +0: Rescan unnamed device list
 	def _rescan():
 		def devSearch(_name):
 			for cDev in QMidiDeviceSeer.DevicePool:
@@ -165,6 +166,7 @@ class QMidiDeviceSeer(QObject):
 			default None: rescan instantly, returning dict as with .midiList()
 			int seconds: start recurring rescan every _pulse seconds.
 	'''
+# -todo 15 (issue) +0: prevent multi-start
 	def maintain(_pulse=None):
 		def _cycleThread():
 			while QMidiDeviceSeer.maintainPulse:
@@ -243,6 +245,7 @@ class QMidiDevice(QObject):
 
 
 
+# =todo 13 (check) +0: perform actual plugged check
 	'''
 	Check if ports are plugged atm.
 	'''
