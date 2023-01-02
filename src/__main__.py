@@ -12,7 +12,7 @@ from PySide2.QtUiTools import *
 
 
 
-from QMidiDevice import *
+from QMidiDeviceMonitor import *
 
 
 
