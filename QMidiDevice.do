@@ -31,3 +31,9 @@
 -issue 15: +0 "src\QMidiDevice.py" Ki 23/01/02 03:54:09
 	prevent multi-start
 
+!demo 16: +0 "src\__main__.py" Ki 23/01/02 06:29:34
+	dont reset 
+
+=connect 17: +0 "src\QMidiDevice.py" Ki 23/01/02 06:46:40
+	maintain last plugged state
+

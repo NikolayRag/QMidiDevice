@@ -322,6 +322,7 @@ class QMidiDevice(QObject):
 		return len(self.portsOut)
 
 
+# =todo 17 (connect) +0: maintain last plugged state
 	'''
 	Device In ports count
 	'''
