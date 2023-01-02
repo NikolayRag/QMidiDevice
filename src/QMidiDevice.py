@@ -1,6 +1,8 @@
 from PySide2.QtCore import *
 from threading import *
 from time import *
+import logging
+logging.getLogger().setLevel(logging.WARNING)
 
 
 # https://pypi.org/project/python-rtmidi/
@@ -13,9 +15,9 @@ import rtmidi
 Dummy class for maintain static QMidiDevice signals
 '''
 class QMidiDeviceSignal(QObject):
-	sigScanned = Signal(dict) #all devices
-	sigAdded = Signal(dict, dict) #added outputs and inputs
-	sigMissing = Signal(dict, dict) #missing outputs and inputs
+	sigScanned = Signal(list) #all devices
+	sigAdded = Signal(object, bool) #added outputs (True) or inputs (False)
+	sigMissing = Signal(object, bool) #missing outputs (True) or inputs (False)
 
 
 	def __init__(self):
@@ -36,7 +38,7 @@ class QMidiDeviceSeer(QObject):
 	observerIn = rtmidi.MidiIn()
 	observerOut = rtmidi.MidiOut()
 
-	DevicePool = {} #{name:QMidiDevice,..}
+	DevicePool = []
 
 
 	maintainPulse = 0
@@ -53,51 +55,67 @@ class QMidiDeviceSeer(QObject):
 
 
 	'''
+	Issue: only first device with same names counts.
+
+
 	Rescan plugged MIDI devices.
+
+	Flow:
+
+	* Iterate In,Out ports
+		* Search QMidiDevice by device name
+			* Create if new name
+		* Unplug missing
 	'''
 	def _rescan():
+		def devSearch(_name):
+			for cDev in QMidiDeviceSeer.DevicePool:
+				if cDev.getName()==_name:
+					return cDev
+
+
+		def devSigTransit (_dev):
+			_dev.sigPlugged.connect(lambda _out, _state:
+				(QMidiDeviceSeer.sigAdded if _state else QMidiDeviceSeer.sigMissing).emit(_dev, _out)
+			)
+
 
 		#In/Out ports for same device are independent of each other,
 		# only collected within one device.
+		logging.info("\n--- rescan")
 		for obsObj, portIsOut in ((QMidiDeviceSeer.observerOut, True), (QMidiDeviceSeer.observerIn, False)):
-			devsAdded = {} #to be filled
 			devsMissing = QMidiDeviceSeer.midiList(portIsOut) #to be shrinked
-
-
+			logging.info(f"{'out' if portIsOut else 'in'} with {[d.getName() for d in devsMissing]}")
 			for cPort in range(obsObj.get_port_count()):
-				devName = obsObj.get_port_name(cPort)
-				devName = ' '.join(devName.split(' ')[:-1]) #remove rtmidi id from name
+				cPortName = obsObj.get_port_name(cPort)
+				devName = ' '.join(cPortName.split(' ')[:-1])
 
-				if devName in devsMissing: del devsMissing[devName]
+				cDevice = devSearch(devName)
+				logging.info(f"\t\tfound: {cPortName}: {cDevice}")
 
+				#create new device
+				if not cDevice:
+					cDevice = QMidiDevice(devName)
+					devSigTransit(cDevice)
 
-				#new device
-				if devName not in QMidiDeviceSeer.DevicePool:
-					QMidiDeviceSeer.DevicePool[devName] = QMidiDevice(devName)
+					QMidiDeviceSeer.DevicePool += [cDevice]
 
-
-				cDevice = QMidiDeviceSeer.DevicePool[devName]
 
 				pluggedFn = cDevice.pluggedOut if portIsOut else cDevice.pluggedIn
 				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
-
 				if not pluggedFn():
-					devsAdded[devName] = cDevice
-
 					plugFn(True)
+
+				if cDevice in devsMissing:
+					devsMissing.remove(cDevice)
 
 
 			#accidentally missing
-			for cDev in devsMissing.values():
+			logging.info(f"\tmiss:{devsMissing}")
+			for cDev in devsMissing:
 				plugFn = cDev._plugOut if portIsOut else cDev._plugIn
 				plugFn(False)
 
-
-			if devsAdded:
-				QMidiDeviceSeer.sigAdded.emit(portIsOut, devsAdded)
-			if devsMissing:
-				QMidiDeviceSeer.sigMissing.emit(portIsOut, devsMissing)
-			
 
 		outList = QMidiDeviceSeer.midiList()
 		QMidiDeviceSeer.sigScanned.emit(outList)
@@ -122,14 +140,15 @@ class QMidiDeviceSeer(QObject):
 	'''
 	def midiList(isOut=None):
 		if isOut==None:
-			return dict(QMidiDeviceSeer.DevicePool)
+			return list(QMidiDeviceSeer.DevicePool)
 
 
-		return {
-			dName:dObj for dName,dObj in QMidiDeviceSeer.DevicePool.items() if (
+		return [
+			dObj for dObj in QMidiDeviceSeer.DevicePool if (
 				dObj.pluggedOut() if isOut else dObj.pluggedIn()
 			)
-		}
+		]
+
 
 
 
@@ -137,9 +156,9 @@ class QMidiDeviceSeer(QObject):
 	Rescan device list instantly or periodically.
 
 	Rescan results are emited with QT Signals:
-		sigScanned(dict): all devaices
-		sigAdded(dict, dict): outputs and inputs added from last rescan, accordingly
-		sigMissing(dict, dict): outputs and inputs missing from last rescan, accordingly
+		sigScanned(list): all devices
+		sigAdded(object, bool): outputs and inputs added from last rescan, accordingly
+		sigMissing(object, bool): outputs and inputs missing from last rescan, accordingly
 
 
 		_pulse
@@ -185,7 +204,8 @@ class QMidiDevice(QObject):
 
 
 	sigRecieved = Signal(list) #[data]
-	sigConnectedState = Signal(bool, bool) #isOutput, state
+	sigPlugged = Signal(bool, bool) #isOutput, state
+	sigConnected = Signal(bool, bool) #isOutput, state
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigMissing = Signal(bool) #error at connecting, isOutput flag
 
@@ -194,8 +214,9 @@ class QMidiDevice(QObject):
 	midiName = '' #original device name
 
 
-	isPluggedOut = False
-	isPluggedIn = False
+	#[port,..]
+	portsOut = None
+	portsIn = None
 
 
 	pymidiThreadIn = None #Input listening thread
@@ -207,12 +228,26 @@ class QMidiDevice(QObject):
 
 
 	def _plugOut(self, _state=False):
-		self.isPluggedOut = _state
+		newPort = [rtmidi.MidiOut()] if _state else []
+		self.portsOut = newPort
+
+		self.sigPlugged.emit(True, _state)
 
 
 
 	def _plugIn(self, _state=False):
-		self.isPluggedIn = _state
+		newPort = [rtmidi.MidiIn()] if _state else []
+		self.portsIn = newPort
+
+		self.sigPlugged.emit(False, _state)
+
+
+
+	'''
+	Check if ports are plugged atm.
+	'''
+	def _portsPlugged(self):
+		return True
 
 
 
@@ -265,6 +300,9 @@ class QMidiDevice(QObject):
 
 		self.midiName = _name
 
+		self.portsOut = []
+		self.portsIn = []
+
 
 
 	def getName(self):
@@ -273,24 +311,23 @@ class QMidiDevice(QObject):
 
 
 	'''
-	Device have Out port
+	Device Out ports count
 	'''
 	def pluggedOut(self):
-		if not self._isPlugged():
+		if not self._portsPlugged():
 			return
 
-		return bool(self.portsOut)
-
+		return len(self.portsOut)
 
 
 	'''
-	Device have In port
+	Device In ports count
 	'''
 	def pluggedIn(self):
-		if not self._isPlugged():
+		if not self._portsPlugged():
 			return
 
-		return bool(self.portsIn)
+		return len(self.portsIn)
 
 
 

@@ -35,7 +35,7 @@ class QMDDemo():
 
         self.wListDevices.clear()
 
-        for cDev in _devices.values():
+        for cDev in _devices:
             devName = f"{'in' if cDev.pluggedIn() else '--'} {'out' if cDev.pluggedOut() else '--'}: {cDev.getName()}"
             cItem = QListWidgetItem(devName)
             cItem.setData(Qt.UserRole, cDev)
@@ -107,8 +107,8 @@ class QMDDemo():
         #QMidiDevice setup
 
         QMidiDeviceSeer.sigScanned.connect(self.midiCollect)
-        QMidiDeviceSeer.sigAdded.connect(lambda _isout, _devs: print(f"add {'out' if _isout else 'in'}:\n {_devs}"))
-        QMidiDeviceSeer.sigMissing.connect(lambda _isout, _devs: print(f"miss {'out' if _isout else 'in'}:\n {_devs}"))
+        QMidiDeviceSeer.sigAdded.connect(lambda _dev, _out: print(f" + {'out' if _out else 'in'} {_dev.getName()}"))
+        QMidiDeviceSeer.sigMissing.connect(lambda _dev, _out: print(f" - {'out' if _out else 'in'} {_dev.getName()}"))
         wBtnMidiGet.clicked.connect(self.midiListen)
         wBtnMidiNext.clicked.connect(self.midiHold)
 
