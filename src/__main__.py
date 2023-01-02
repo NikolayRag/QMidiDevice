@@ -59,7 +59,7 @@ class QMDDemo():
 
     
     def midiPoke(self, _ctrl, _val):
-        print(f" echo {_ctrl}: {_val}")
+        print(f" echo {_ctrl}: {_val}\t", end='\r')
 
         self.midiTo and self.midiTo.send(_ctrl, _val)
 
