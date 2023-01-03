@@ -41,7 +41,7 @@ class QMDDemo():
 
 
 
-    def midiListen(self):
+    def midiSetFrom(self):
         cItem = self.wListDevices.currentItem()
         if not cItem:
             return
@@ -80,7 +80,7 @@ class QMDDemo():
 
 
 
-    def midiHold(self):
+    def midiSetTo(self):
         cItem = self.wListDevices.currentItem()
         if not cItem:
             return
@@ -111,10 +111,10 @@ class QMDDemo():
         layMain.addWidget(self.wListDevices)
 
 
-        wBtnMidiGet = QPushButton('Listen')
-        layMain.addWidget(wBtnMidiGet)
-        wBtnMidiNext = QPushButton('Sink')
-        layMain.addWidget(wBtnMidiNext)
+        wBtnMidiFrom = QPushButton('From')
+        layMain.addWidget(wBtnMidiFrom)
+        wBtnMidiTo = QPushButton('To')
+        layMain.addWidget(wBtnMidiTo)
 
 
         #QMidiDevice setup
@@ -122,8 +122,8 @@ class QMDDemo():
         QMidiDeviceMonitor.sigScanned.connect(self.midiCollect)
         QMidiDeviceMonitor.sigAdded.connect(lambda _dev, _out: print(f" + {'out' if _out else 'in'} {_dev.getName()}"))
         QMidiDeviceMonitor.sigMissing.connect(lambda _dev, _out: print(f" - {'out' if _out else 'in'} {_dev.getName()}"))
-        wBtnMidiGet.clicked.connect(self.midiListen)
-        wBtnMidiNext.clicked.connect(self.midiHold)
+        wBtnMidiFrom.clicked.connect(self.midiSetFrom)
+        wBtnMidiTo.clicked.connect(self.midiSetTo)
 
 
         QMidiDeviceMonitor.maintain(1)
