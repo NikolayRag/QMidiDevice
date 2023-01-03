@@ -10,6 +10,7 @@ from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtUiTools import *
 
+from time import *
 
 
 from QMidiDeviceMonitor import *
@@ -51,15 +52,29 @@ class QMDDemo():
                 self.midiFrom.sigRecieved.disconnect()
                 self.midiFrom.disconnectIn()
 
-            midiDev.sigRecieved.connect(lambda v: self.midiPoke(v[1], v[2]))
+            midiDev.sigRecieved.connect(self.midiProccess)
 
         midiDev.connectIn()
         self.midiFrom = midiDev
 
 
     
-    def midiPoke(self, _ctrl, _val):
-        print(f" echo {_ctrl}: {_val}\t", end='\r')
+    def midiProccess(self, _midi):
+        _cch, _ctrl, _val = _midi
+        _cmd = _cch & 0xF0
+        _chan = _cch & 0x0F
+
+        print(f" echo {bin(_cmd>>4)} {_chan} {_ctrl}: {_val}\t\t", end='\r')
+
+        if _ctrl==32 and _val==127:
+            tick = 1
+            tOut = time() +1
+            while time() < tOut:
+                self.midiTo and self.midiTo.send(0, int(127*tick/10000)%127)
+                tick +=1
+
+            print(f"\n{tick} ticks/sec, {tick/127} cycles")
+
 
         self.midiTo and self.midiTo.send(_ctrl, _val)
 
