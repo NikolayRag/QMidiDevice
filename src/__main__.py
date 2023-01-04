@@ -121,6 +121,7 @@ class QMDDemo():
         QMidiDeviceMonitor.sigScanned.connect(self.midiCollect)
         QMidiDeviceMonitor.sigAdded.connect(lambda _dev, _out: print(f" + {'out' if _out else 'in'} {_dev.getName()}"))
         QMidiDeviceMonitor.sigMissing.connect(lambda _dev, _out: print(f" - {'out' if _out else 'in'} {_dev.getName()}"))
+        QMidiDeviceMonitor.sigCrit.connect(lambda _dev, _state: print(f" ! {'restore' if _state else 'fail'} {_dev.getName()}"))
         wBtnMidiFrom.clicked.connect(self.midiSetFrom)
         wBtnMidiTo.clicked.connect(self.midiSetTo)
 

@@ -19,6 +19,7 @@ class QMidiDeviceSignal(QObject):
 	sigAdded = Signal(object, bool) #added outputs (True) or inputs (False)
 	sigMissing = Signal(object, bool) #missing outputs (True) or inputs (False)
 
+	sigCrit = Signal(object, bool) #failed or reconnected
 
 	def __init__(self):
 		QObject.__init__(self)
@@ -32,6 +33,7 @@ class QMidiDeviceMonitor(QObject):
 	sigScanned = SignalAlias.sigScanned
 	sigAdded = SignalAlias.sigAdded
 	sigMissing = SignalAlias.sigMissing
+	sigCrit = SignalAlias.sigCrit
 
 
 	#dummy port listeners
@@ -77,6 +79,11 @@ class QMidiDeviceMonitor(QObject):
 		def devSigTransit(_dev):
 			_dev.sigPlugged.connect(lambda _out, _state:
 				(QMidiDeviceMonitor.sigAdded if _state else QMidiDeviceMonitor.sigMissing).emit(_dev, _out)
+			)
+
+
+			_dev.sigRestore.connect(lambda _out, _state:
+				QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
 			)
 
 
