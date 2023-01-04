@@ -41,66 +41,6 @@ class QMidiDevice(QObject):
 
 
 
-	def _plugOut(self, _state=False):
-		newPort = [rtmidi.MidiOut()] if _state else []
-		self.portsOut = newPort
-
-		self.sigPlugged.emit(True, _state)
-
-
-
-	def _plugIn(self, _state=False):
-		newPort = [rtmidi.MidiIn()] if _state else []
-		self.portsIn = newPort
-
-		self.sigPlugged.emit(False, _state)
-
-
-
-# =todo 13 (check) +0: perform actual plugged check
-	'''
-	Check if ports are plugged atm.
-	'''
-	def _portsPlugged(self):
-		return True
-
-
-
-	def _listen(self,_data,_):
-		self.sigRecieved.emit(_data[0])
-
-
-
-	'''
-	Connect present ports using device name
-	'''
-	def _connect(self, _out=True):
-		portTest = self.portsOut if _out else self.portsIn
-		if not portTest:
-			return
-
-
-		for cPort in range(portTest[0].get_port_count()):
-			portName = portTest[0].get_port_name(cPort)
-			if self.getName() == ' '.join(portName.split(' ')[:-1]):
-
-				try:
-					portTest[0].open_port(cPort)
-					if not _out:
-						portTest[0].set_callback(self._listen)
-
-				except Exception as x:
-					return
-
-
-				self.sigConnected.emit(_out, True)
-				return True
-
-
-
-### - private
-
-
 	'''
 	rtmidi wrapper.
 
@@ -131,10 +71,21 @@ class QMidiDevice(QObject):
 
 
 
+# =todo 13 (check) +0: perform actual plugged check
+	'''
+	Check if ports are plugged atm.
+	'''
+	def _portsPlugged(self):
+		return True
+
+
 	'''
 	Device Out ports count
 	'''
 	def pluggedOut(self):
+		if not len(self.portsOut):
+			return
+
 		if not self._portsPlugged():
 			return
 
@@ -146,10 +97,32 @@ class QMidiDevice(QObject):
 	Device In ports count
 	'''
 	def pluggedIn(self):
+		if not len(self.portsIn):
+			return
+
 		if not self._portsPlugged():
 			return
 
 		return len(self.portsIn)
+
+
+	'''
+	_plugOut, _plugOut
+
+	Called when corresponding device is plugged or unplugged as visible to rtmidi.
+	'''
+	def _plugOut(self, _state=False):
+		newPort = [rtmidi.MidiOut()] if _state else []
+		self.portsOut = newPort
+
+		self.sigPlugged.emit(True, _state)
+
+
+	def _plugIn(self, _state=False):
+		newPort = [rtmidi.MidiIn()] if _state else []
+		self.portsIn = newPort
+
+		self.sigPlugged.emit(False, _state)
 
 
 
@@ -157,9 +130,39 @@ class QMidiDevice(QObject):
 		return self.portsOut and self.portsOut[0].is_port_open()
 
 
-
 	def isConnectedIn(self):
 		return self.portsIn and self.portsIn[0].is_port_open()
+
+
+
+	'''
+	Connect present ports using device name
+	'''
+	def _connect(self, _out=True):
+		def _listen(_data,_):
+			self.sigRecieved.emit(_data[0])
+
+
+		portTest = self.portsOut if _out else self.portsIn
+		if not portTest:
+			return
+
+
+		for cPort in range(portTest[0].get_port_count()):
+			portName = portTest[0].get_port_name(cPort)
+			if self.getName() == ' '.join(portName.split(' ')[:-1]):
+
+				try:
+					portTest[0].open_port(cPort)
+					if not _out:
+						portTest[0].set_callback(_listen)
+
+				except Exception as x:
+					return
+
+
+				self.sigConnected.emit(_out, True)
+				return True
 
 
 
@@ -172,7 +175,6 @@ class QMidiDevice(QObject):
 		return self._connect(True)
 
 
-
 	def connectIn(self):
 		if not self.pluggedIn():
 			return
@@ -181,16 +183,6 @@ class QMidiDevice(QObject):
 			return True
 
 		return self._connect(False)
-
-
-
-	def disconnectOut(self):
-		self._disconnect(True)
-
-
-
-	def disconnectIn(self):
-		self._disconnect(False)
 
 
 
@@ -206,6 +198,15 @@ class QMidiDevice(QObject):
 
 
 		self.sigConnected.emit(_out, False)
+
+
+
+	def disconnectOut(self):
+		self._disconnect(True)
+
+
+	def disconnectIn(self):
+		self._disconnect(False)
 
 
 
