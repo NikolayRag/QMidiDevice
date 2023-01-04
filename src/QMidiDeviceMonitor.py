@@ -74,7 +74,7 @@ class QMidiDeviceMonitor(QObject):
 					return cDev
 
 
-		def devSigTransit (_dev):
+		def devSigTransit(_dev):
 			_dev.sigPlugged.connect(lambda _out, _state:
 				(QMidiDeviceMonitor.sigAdded if _state else QMidiDeviceMonitor.sigMissing).emit(_dev, _out)
 			)
@@ -84,7 +84,7 @@ class QMidiDeviceMonitor(QObject):
 		# only collected within one device.
 		logging.info("\n--- rescan")
 		for portIsOut in (True, False):
-			#check all's plugged state
+			#check all's plugged state, unplugging orphan
 			for dObj in QMidiDeviceMonitor.DevicePool:
 				dObj.pluggedOut() if portIsOut else dObj.pluggedIn()
 
