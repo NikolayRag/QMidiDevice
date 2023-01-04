@@ -180,11 +180,11 @@ class QMidiDevice(QObject):
 
 				try:
 					portTest[0].open_port(cPort)
-					if not _out:
-						portTest[0].set_callback(_listen)
-
 				except Exception as x:
 					return
+
+				if not _out:
+					portTest[0].set_callback(_listen)
 
 
 				return True
