@@ -33,8 +33,8 @@ class QMidiDevice(QObject):
 	sigRecieved = Signal(list) #[data]
 	sigPlugged = Signal(bool, bool) #isOutput, state
 	sigConnected = Signal(bool, bool) #isOutput, state
-	sigRestored = Signal(bool) #isOutput
 	sigFail = Signal(bool) #error at sending data, isOutput flag
+	sigRestore = Signal(bool, bool) #isOutput, success
 
 
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
@@ -132,8 +132,8 @@ class QMidiDevice(QObject):
 		self.portsOut = newPort
 
 		if self.lastOut:
-			self.connectOut()
-			self.sigRestored(True)
+			recon = self.connectOut()
+			self.sigRestore.emit(True, recon)
 
 		self.sigPlugged.emit(True, _state)
 
@@ -146,8 +146,8 @@ class QMidiDevice(QObject):
 		self.portsIn = newPort
 
 		if self.lastIn:
-			self.connectIn()
-			self.sigRestored(False)
+			recon = self.connectIn()
+			self.sigRestore.emit(False, recon)
 
 		self.sigPlugged.emit(False, _state)
 
