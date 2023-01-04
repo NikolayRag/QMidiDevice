@@ -17,7 +17,6 @@ from QMidiDeviceMonitor import *
 
 
 
-
 class QMDDemo():
     midiFrom = None
     midiTo = None
@@ -64,7 +63,7 @@ class QMDDemo():
         _cmd = _cch & 0xF0
         _chan = _cch & 0x0F
 
-        print(f" echo {bin(_cmd>>4)} {_chan} {_ctrl}: {_val}\t\t", end='\r')
+        print(f" {self.midiFrom.getName()} {bin(_cmd>>4)} {_chan} {_ctrl}: {_val}\t\t", end='\r')
 
         if _ctrl==32 and _val==127:
             tick = 1
@@ -73,7 +72,7 @@ class QMDDemo():
                 self.midiTo and self.midiTo.send(0, int(127*tick/10000)%127)
                 tick +=1
 
-            print(f"\n{tick} ticks/sec, {tick/127} cycles")
+            print(f"\n{tick} ticks/sec, {int(tick/127)} cycles")
 
 
         self.midiTo and self.midiTo.send(_ctrl, _val)
