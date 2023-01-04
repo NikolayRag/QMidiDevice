@@ -32,7 +32,6 @@ class QMidiDevice(QObject):
 
 	sigRecieved = Signal(list) #[data]
 	sigPlugged = Signal(bool, bool) #isOutput, state
-	sigConnected = Signal(bool, bool) #isOutput, state
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigRestore = Signal(bool, bool) #isOutput, success
 
@@ -188,7 +187,6 @@ class QMidiDevice(QObject):
 					return
 
 
-				self.sigConnected.emit(_out, True)
 				return True
 
 
@@ -224,9 +222,6 @@ class QMidiDevice(QObject):
 			portTest.close_port()
 		except:
 			None
-
-
-		self.sigConnected.emit(_out, False)
 
 
 
