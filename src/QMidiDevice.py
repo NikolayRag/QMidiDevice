@@ -235,8 +235,10 @@ class QMidiDevice(QObject):
 
 
 		try:
-			self.portsOut[0].send_message([cmd+channel, _ctrl, _val])
+			self.portsOut and self.portsOut[0].send_message([cmd+channel, _ctrl, _val])
 		except Exception as x:
 			self.disconnectOut()
 
 			self.sigFail.emit(True)
+
+			self.pluggedOut() #check
