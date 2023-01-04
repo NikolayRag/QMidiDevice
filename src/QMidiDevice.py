@@ -33,6 +33,7 @@ class QMidiDevice(QObject):
 	sigRecieved = Signal(list) #[data]
 	sigPlugged = Signal(bool, bool) #isOutput, state
 	sigConnected = Signal(bool, bool) #isOutput, state
+	sigRestored = Signal(bool) #isOutput
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigMissing = Signal(bool) #error at connecting, isOutput flag
 
@@ -45,6 +46,8 @@ class QMidiDevice(QObject):
 	portsOut = None
 	portsIn = None
 
+	lastOut = False
+	lastIn = False
 
 
 	'''
@@ -131,6 +134,10 @@ class QMidiDevice(QObject):
 		newPort = [rtmidi.MidiOut()] if _state else []
 		self.portsOut = newPort
 
+		if self.lastOut:
+			self.connectOut()
+			self.sigRestored(True)
+
 		self.sigPlugged.emit(True, _state)
 
 
@@ -140,6 +147,10 @@ class QMidiDevice(QObject):
 
 		newPort = [rtmidi.MidiIn()] if _state else []
 		self.portsIn = newPort
+
+		if self.lastIn:
+			self.connectIn()
+			self.sigRestored(False)
 
 		self.sigPlugged.emit(False, _state)
 
@@ -191,6 +202,8 @@ class QMidiDevice(QObject):
 		if self.isConnectedOut():
 			return True
 
+		self.lastOut = True
+
 		return self._connect(True)
 
 
@@ -199,6 +212,8 @@ class QMidiDevice(QObject):
 			return
 		if self.isConnectedIn():
 			return True
+
+		self.lastIn = True
 
 		return self._connect(False)
 
@@ -219,12 +234,18 @@ class QMidiDevice(QObject):
 
 
 
-	def disconnectOut(self):
+	def disconnectOut(self, _manual=True):
 		self._disconnect(True)
 
+		if _manual:
+			self.lastOut = False
 
-	def disconnectIn(self):
+
+	def disconnectIn(self, _manual=True):
 		self._disconnect(False)
+
+		if _manual:
+			self.lastIn = False
 
 
 
@@ -241,7 +262,7 @@ class QMidiDevice(QObject):
 		try:
 			self.portsOut and self.portsOut[0].send_message([cmd+channel, _ctrl, _val])
 		except Exception as x:
-			self.disconnectOut()
+			self.disconnectOut(False)
 
 			self.sigFail.emit(True)
 
