@@ -37,3 +37,6 @@
 +connect 17: +0 "src\QMidiDevice.py" Ki 23/01/04 08:56:40
 	maintain last connected state after replug
 
+-issue 18: +1 "src\QMidiDevice.py" Ki 23/01/05 02:26:09
+	signals dont pass to QMidiMonitor (only!) from here somehow
+
