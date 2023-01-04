@@ -165,7 +165,7 @@ class QMidiDevice(QObject):
 	Connect present ports using device name
 	'''
 	def _connect(self, _out=True):
-		def _listen(_data,_):
+		def _listen(_data, _):
 			self.sigRecieved.emit(_data[0])
 
 
