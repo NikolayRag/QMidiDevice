@@ -80,6 +80,10 @@ class QMidiDevice(QObject):
 
 	'''
 	Check if ports are plugged atm.
+
+	bool _test
+		performs checking if plugged port exists within rtmidi
+		 and unplug if no.
 	'''
 	def _pluggedState(self, _out, _test):
 		ports = self.portsOut if _out else self.portsIn

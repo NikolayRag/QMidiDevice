@@ -22,7 +22,7 @@
  features 12: +0 "src\QMidiDevice.py" Ki 22/12/29 03:44:48
 	allow device to have multiple In's and Out's
 
-+check 13: +0 "src\QMidiDevice.py" Ki 23/01/04 08:09:36
++check 13: +0 "src\QMidiDevice.py" Ki 23/01/04 08:12:56
 	perform actual plugged check
 
 +scan 14: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/03 04:37:31
