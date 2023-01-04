@@ -89,7 +89,8 @@ class QMDDemo():
 
         midiDev = cItem.data(Qt.UserRole)
         if midiDev and midiDev!=self.midiTo:
-            self.midiTo and self.midiTo.disconnectOut()
+            if self.midiTo:
+                self.midiTo.disconnectIn()
 
         midiDev.connectOut()
         self.midiTo = midiDev
