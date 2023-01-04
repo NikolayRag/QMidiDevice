@@ -81,6 +81,9 @@ class QMidiDeviceMonitor(QObject):
 				(QMidiDeviceMonitor.sigAdded if _state else QMidiDeviceMonitor.sigMissing).emit(_dev, _out)
 			)
 
+			_dev.sigFail.connect(lambda _out:
+				QMidiDeviceMonitor.sigCrit.emit(_dev, False)
+			)
 
 			_dev.sigRestore.connect(lambda _out, _state:
 				QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
