@@ -35,6 +35,8 @@ class QMidiDevice(QObject):
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigRestore = Signal(bool, bool) #isOutput, success
 
+	sigTest = Signal()
+
 
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
 	midiName = '' #original device name
@@ -165,6 +167,9 @@ class QMidiDevice(QObject):
 	Connect present ports using device name
 	'''
 	def _connect(self, _out=True):
+# -todo 18 (issue) +1: signals dont pass to QMidiMonitor (only!) from here somehow
+		self.sigTest.emit()
+
 		def _listen(_data, _):
 			self.sigRecieved.emit(_data[0])
 

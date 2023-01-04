@@ -89,6 +89,9 @@ class QMidiDeviceMonitor(QObject):
 				QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
 			)
 
+			_dev.sigTest.connect(lambda:print('test 1/2'))
+
+
 
 		#In/Out ports for same device are independent of each other,
 		# only collected within one device.

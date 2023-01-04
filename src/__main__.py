@@ -49,9 +49,12 @@ class QMDDemo():
         if midiDev and midiDev!=self.midiFrom:
             if self.midiFrom:
                 self.midiFrom.sigRecieved.disconnect()
+                self.midiFrom.sigTest.disconnect()
                 self.midiFrom.disconnectIn()
 
             midiDev.sigRecieved.connect(self.midiProccess)
+
+            midiDev.sigTest.connect(lambda:print('test 2/2'))
 
         midiDev.connectIn()
         self.midiFrom = midiDev
