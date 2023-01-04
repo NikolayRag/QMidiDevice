@@ -228,7 +228,9 @@ class QMidiDevice(QObject):
 		if channel>16 or channel<0:
 			return
 
-		if not self.connectOut():
+		if not self.pluggedOut(test=False):
+			return
+		if not self.isConnectedOut():
 			return
 
 
