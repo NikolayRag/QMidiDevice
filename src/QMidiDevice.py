@@ -206,7 +206,7 @@ class QMidiDevice(QObject):
 			return
 
 		try:
-			portTest.cloase_port()
+			portTest.close_port()
 		except:
 			None
 
