@@ -89,11 +89,10 @@ class QMidiDeviceMonitor(QObject):
 		#In/Out ports for same device are independent of each other,
 		# only collected within one device.
 		logging.info("\n--- rescan")
-		for obsObj, portIsOut in ((QMidiDeviceMonitor.observerOut, True), (QMidiDeviceMonitor.observerIn, False)):
+		for portIsOut in (True, False):
 			devsMissing = QMidiDeviceMonitor.midiList(portIsOut) #to be shrinked
 			logging.info(f"{'out' if portIsOut else 'in'} with {[d.getName() for d in devsMissing]}")
-			for cPort in range(obsObj.get_port_count()):
-				cPortName = obsObj.get_port_name(cPort)
+			for cPortName in QMidiDeviceMonitor.listPorts(portIsOut):
 				devName = ' '.join(cPortName.split(' ')[:-1])
 
 				cDevice = devSearch(devName)
@@ -127,6 +126,11 @@ class QMidiDeviceMonitor(QObject):
 		QMidiDeviceMonitor.sigScanned.emit(outList)
 
 		return outList
+
+
+
+	def listPorts(_out):
+		return (QMidiDeviceMonitor.observerOut if _out else QMidiDeviceMonitor.observerIn).get_ports()
 
 
 
