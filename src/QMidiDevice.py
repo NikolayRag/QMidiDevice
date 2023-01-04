@@ -35,7 +35,6 @@ class QMidiDevice(QObject):
 	sigConnected = Signal(bool, bool) #isOutput, state
 	sigRestored = Signal(bool) #isOutput
 	sigFail = Signal(bool) #error at sending data, isOutput flag
-	sigMissing = Signal(bool) #error at connecting, isOutput flag
 
 
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
@@ -102,7 +101,7 @@ class QMidiDevice(QObject):
 			if self.getName() == ' '.join(pName.split(' ')[:-1]):
 				return True
 
-
+		#cleanup orphan port
 		del ports[:]
 
 		self.sigPlugged.emit(_out, False)
