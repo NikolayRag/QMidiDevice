@@ -81,11 +81,14 @@ class QMidiDevice(QObject):
 	'''
 	Check if ports are plugged atm.
 	'''
-	def _pluggedState(self, _out):
+	def _pluggedState(self, _out, _test):
 		ports = self.portsOut if _out else self.portsIn
 
 		if not len(ports):
 			return
+
+		if not _test:
+			return True
 
 
 		for pName in ports[0].get_ports():
@@ -102,13 +105,13 @@ class QMidiDevice(QObject):
 	'''
 	Device ports marked or actually plugged
 	'''
-	def pluggedOut(self):
-		return self._pluggedState(True)
+	def pluggedOut(self, test=True):
+		return self._pluggedState(True, test)
 
 
 # =todo 17 (connect) +0: maintain last connected state after replug
-	def pluggedIn(self):
-		return self._pluggedState(False)
+	def pluggedIn(self, _test=True):
+		return self._pluggedState(False, _test)
 
 
 
@@ -190,7 +193,6 @@ class QMidiDevice(QObject):
 	def connectIn(self):
 		if not self.pluggedIn():
 			return
-
 		if self.isConnectedIn():
 			return True
 
