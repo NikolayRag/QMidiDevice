@@ -199,9 +199,9 @@ class QMidiDevice(QObject):
 		if self.isConnectedOut():
 			return True
 
-		self.lastOut = True
 
-		return self._connect(True)
+		self.lastOut = self._connect(True)
+		return self.lastOut
 
 
 	def connectIn(self):
@@ -210,9 +210,8 @@ class QMidiDevice(QObject):
 		if self.isConnectedIn():
 			return True
 
-		self.lastIn = True
-
-		return self._connect(False)
+		self.lastIn = self._connect(False)
+		return self.lastIn
 
 
 
