@@ -224,7 +224,7 @@ class QMidiDevice(QObject):
 			return
 
 		try:
-			portTest.close_port()
+			portTest[0].close_port()
 		except:
 			None
 
