@@ -7,13 +7,8 @@ import logging
 logging.getLogger().setLevel(logging.WARNING)
 
 
-
-
-# https://pypi.org/project/python-rtmidi/
-# https://github.com/SpotlightKid/python-rtmidi
-import rtmidi
-
 from QMidiDevice import *
+
 
 
 '''
@@ -72,7 +67,6 @@ class QMidiDeviceMonitor(QObject):
 			* Create if new name
 		* Unplug missing
 	'''
-# =todo 14 (scan) +0: Rescan unnamed device list
 	def _rescan():
 		def devSearch(_name):
 			for cDev in QMidiDeviceMonitor.DevicePool:

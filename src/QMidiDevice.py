@@ -4,9 +4,15 @@ import logging
 logging.getLogger().setLevel(logging.WARNING)
 
 
+
 # https://pypi.org/project/python-rtmidi/
 # https://github.com/SpotlightKid/python-rtmidi
 import rtmidi
+
+''' !!!
+Take in mind that rtmidi identifies ports by sequental naming,
+ where sequence id WILL change as devices are disconnected.
+!!! '''
 
 
 
@@ -71,7 +77,7 @@ class QMidiDevice(QObject):
 
 
 
-# =todo 13 (check) +0: perform actual plugged check
+
 	'''
 	Check if ports are plugged atm.
 	'''
