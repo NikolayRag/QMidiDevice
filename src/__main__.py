@@ -63,7 +63,7 @@ class QMDDemo():
         _cmd = _cch & 0xF0
         _chan = _cch & 0x0F
 
-        print(f" {self.midiFrom.getName()} {bin(_cmd>>4)} {_chan} {_ctrl}: {_val}\t\t", end='\r')
+#        print(f" midi {bin(_cmd>>4)} {_chan} {_ctrl}: {_val}\t\t", end='\r')
 
         if _ctrl==32 and _val==127:
             tick = 1
