@@ -63,9 +63,9 @@ class QMidiDeviceMonitor(QObject):
 	Flow:
 
 	* Iterate In,Out ports
+		* Check all plugged
 		* Search QMidiDevice by device name
 			* Create if new name
-		* Unplug missing
 	'''
 	def _rescan():
 		def devSearch(_name):
@@ -84,8 +84,11 @@ class QMidiDeviceMonitor(QObject):
 		# only collected within one device.
 		logging.info("\n--- rescan")
 		for portIsOut in (True, False):
-			devsMissing = QMidiDeviceMonitor.midiList(portIsOut) #to be shrinked
-			logging.info(f"{'out' if portIsOut else 'in'} with {[d.getName() for d in devsMissing]}")
+			#check all's plugged state
+			for dObj in QMidiDeviceMonitor.DevicePool:
+				dObj.pluggedOut() if portIsOut else dObj.pluggedIn()
+
+
 			for cPortName in QMidiDeviceMonitor.listPorts(portIsOut):
 				devName = ' '.join(cPortName.split(' ')[:-1])
 
@@ -100,20 +103,8 @@ class QMidiDeviceMonitor(QObject):
 					QMidiDeviceMonitor.DevicePool += [cDevice]
 
 
-				pluggedFn = cDevice.pluggedOut if portIsOut else cDevice.pluggedIn
 				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
-				if not pluggedFn():
-					plugFn(True)
-
-				if cDevice in devsMissing:
-					devsMissing.remove(cDevice)
-
-
-			#accidentally missing
-			logging.info(f"\tmiss:{devsMissing}")
-			for cDev in devsMissing:
-				plugFn = cDev._plugOut if portIsOut else cDev._plugIn
-				plugFn(False)
+				plugFn(True)
 
 
 		outList = QMidiDeviceMonitor.midiList()
