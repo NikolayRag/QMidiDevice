@@ -34,6 +34,6 @@
 !demo 16: +0 "src\__main__.py" Ki 23/01/02 06:29:34
 	dont reset 
 
-=connect 17: +0 "src\QMidiDevice.py" Ki 23/01/02 17:07:41
++connect 17: +0 "src\QMidiDevice.py" Ki 23/01/04 08:56:40
 	maintain last connected state after replug
 

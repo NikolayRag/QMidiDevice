@@ -116,7 +116,6 @@ class QMidiDevice(QObject):
 		return self._pluggedState(True, test)
 
 
-# =todo 17 (connect) +0: maintain last connected state after replug
 	def pluggedIn(self, _test=True):
 		return self._pluggedState(False, _test)
 
