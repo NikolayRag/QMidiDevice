@@ -83,17 +83,16 @@ class QMidiDevice(QObject):
 	'''
 	Check if ports are plugged atm.
 
-	bool _test
-		performs checking if plugged port exists within rtmidi
-		 and unplug if no.
+	bool _quiet
+		suppress checking if plugged port exists within rtmidi.
 	'''
-	def _pluggedState(self, _out, _test):
+	def _pluggedState(self, _out, _quiet):
 		ports = self.portsOut if _out else self.portsIn
 
 		if not len(ports):
 			return
 
-		if not _test:
+		if _quiet:
 			return True
 
 
@@ -111,12 +110,12 @@ class QMidiDevice(QObject):
 	'''
 	Device ports marked or actually plugged
 	'''
-	def pluggedOut(self, test=True):
-		return self._pluggedState(True, test)
+	def pluggedOut(self, quiet=False):
+		return self._pluggedState(True, quiet)
 
 
-	def pluggedIn(self, _test=True):
-		return self._pluggedState(False, _test)
+	def pluggedIn(self, quiet=False):
+		return self._pluggedState(False, quiet)
 
 
 
