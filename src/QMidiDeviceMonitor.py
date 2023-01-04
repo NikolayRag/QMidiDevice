@@ -164,6 +164,7 @@ class QMidiDeviceMonitor(QObject):
 		sigScanned(list): all devices
 		sigAdded(object, bool): outputs and inputs added from last rescan, accordingly
 		sigMissing(object, bool): outputs and inputs missing from last rescan, accordingly
+		sigCrit(object, bool): device fail or reconnected
 
 
 		_pulse
