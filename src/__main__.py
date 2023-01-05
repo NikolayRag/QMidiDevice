@@ -54,7 +54,7 @@ class QMDDemo():
 
             midiDev.sigRecieved.connect(self.midiProccess)
 
-            midiDev.sigTest.connect(lambda:print('test 2/2'))
+            midiDev.sigTest.connect(lambda v:print('test main', v))
 
         midiDev.connectIn()
         self.midiFrom = midiDev

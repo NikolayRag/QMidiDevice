@@ -35,7 +35,7 @@ class QMidiDevice(QObject):
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigRestore = Signal(bool, bool) #isOutput, success
 
-	sigTest = Signal()
+	sigTest = Signal(str)
 
 
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
@@ -126,6 +126,8 @@ class QMidiDevice(QObject):
 	Called when corresponding device is plugged or unplugged as visible to rtmidi.
 	'''
 	def _plugOut(self, _state=False):
+		self.sigTest.emit('okOut')
+
 		if bool(_state) == bool(self.pluggedOut()):
 			return
 
@@ -140,6 +142,8 @@ class QMidiDevice(QObject):
 
 
 	def _plugIn(self, _state=False):
+		self.sigTest.emit('okIn')
+
 		if bool(_state) == bool(self.pluggedIn()):
 			return
 
@@ -167,9 +171,6 @@ class QMidiDevice(QObject):
 	Connect present ports using device name
 	'''
 	def _connect(self, _out=True):
-# -todo 18 (issue) +1: signals dont pass to QMidiMonitor (only!) from here somehow
-		self.sigTest.emit()
-
 		def _listen(_data, _):
 			self.sigRecieved.emit(_data[0])
 
@@ -197,6 +198,10 @@ class QMidiDevice(QObject):
 
 
 	def connectOut(self):
+# =todo 18 (issue) +1: signals dont pass to QMidiMonitor (only!) from here somehow
+		self.sigTest.emit('badOut')
+
+
 		if not self.pluggedOut():
 			return
 		if self.isConnectedOut():
@@ -208,6 +213,8 @@ class QMidiDevice(QObject):
 
 
 	def connectIn(self):
+		self.sigTest.emit('badIn')
+
 		if not self.pluggedIn():
 			return
 		if self.isConnectedIn():

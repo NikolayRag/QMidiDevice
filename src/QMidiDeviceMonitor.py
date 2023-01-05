@@ -89,7 +89,7 @@ class QMidiDeviceMonitor(QObject):
 				QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
 			)
 
-			_dev.sigTest.connect(lambda:print('test 1/2'))
+			_dev.sigTest.connect(lambda v:print('test monitor', v))
 
 
 
