@@ -40,3 +40,21 @@
 =issue 18: +1 "src\QMidiDevice.py" Ki 23/01/05 04:21:39
 	signals dont pass to QMidiMonitor (only!) from here somehow
 
+-feature 19: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:04
+	support 14bit data sending with two controllers
+
+-feature 20: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:06
+	support sending arbitrary data, including sysex
+
+-feature 21: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:07
+	support predefined data pattern
+
+-feature 22: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:08
+	assign data pattern to re-/connected state
+
+-feature 23: +0 "src\QMidiDevice.py" Ki 23/01/06 06:34:57
+	support input data recognition with provided reaction
+
+-feature 24: +0 "src\QMidiDevice.py" Ki 23/01/06 06:36:13
+	buffer sended data in case of currently disconnected state
+
