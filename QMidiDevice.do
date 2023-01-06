@@ -13,13 +13,13 @@
 +api 9: +0 "src\QMidiDevice.py" Ki 22/12/28 06:33:19
 	make QMidiDeviceSeer singletone maintainer
 
- plug, features 10: +0 "src\QMidiDevice.py" Ki 22/12/29 03:44:06
+ plug, feature 10: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/06 08:40:02
 	make case for replugging several devices with one name
 
- plug, features 11: +0 "src\QMidiDevice.py" Ki 22/12/28 14:00:19
+ plug, feature 11: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/06 08:40:02
 	allow similar names
 
- features 12: +0 "src\QMidiDevice.py" Ki 22/12/29 03:44:48
+ feature 12: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/06 08:40:10
 	allow device to have multiple In's and Out's
 
 +check 13: +0 "src\QMidiDevice.py" Ki 23/01/04 08:12:56
@@ -40,7 +40,7 @@
 =issue 18: +1 "src\QMidiDevice.py" Ki 23/01/05 04:21:39
 	signals dont pass to QMidiMonitor (only!) from here somehow
 
--feature 19: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:04
+-feature 19: +0 "src\QMidiDevice.py" Ki 23/01/06 07:54:34
 	support 14bit data sending with two controllers
 
 -feature 20: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:06
