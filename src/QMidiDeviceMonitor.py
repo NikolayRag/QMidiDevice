@@ -198,3 +198,19 @@ class QMidiDeviceMonitor(QObject):
 			Thread(target=_cycleThread, daemon=True).start()
 
 		QMidiDeviceMonitor.maintainPulse = seconds
+
+
+
+	'''
+	Create named QMidiDevice for unexistent name
+	'''
+	def demand(_name):
+		cDevice = QMidiDeviceMonitor._devSearch(_name)
+		if not cDevice:
+			cDevice = QMidiDevice(_name)
+			QMidiDeviceMonitor._devSigTransit(cDevice)
+
+			QMidiDeviceMonitor.DevicePool += [cDevice]
+		
+
+		return cDevice
