@@ -47,6 +47,30 @@ class QMidiDeviceMonitor(QObject):
 
 
 
+	def _devSearch(_name):
+		for cDev in QMidiDeviceMonitor.DevicePool:
+			if cDev.getName()==_name:
+				return cDev
+
+
+
+	def _devSigTransit(_dev):
+		_dev.sigPlugged.connect(lambda _out, _state:
+			(QMidiDeviceMonitor.sigAdded if _state else QMidiDeviceMonitor.sigMissing).emit(_dev, _out)
+		)
+
+		_dev.sigFail.connect(lambda _out:
+			QMidiDeviceMonitor.sigCrit.emit(_dev, False)
+		)
+
+		_dev.sigRestore.connect(lambda _out, _state:
+			QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
+		)
+
+		_dev.sigTest.connect(lambda v:print('test monitor', v))
+
+
+
 #  todo 11 (plug, feature) +0: allow similar names
 #  todo 10 (plug, feature) +0: make case for replugging several devices with one name
 # rename ports to be sequental for each unique name
@@ -70,26 +94,6 @@ class QMidiDeviceMonitor(QObject):
 			* Create if new name
 	'''
 	def _rescan():
-		def devSearch(_name):
-			for cDev in QMidiDeviceMonitor.DevicePool:
-				if cDev.getName()==_name:
-					return cDev
-
-
-		def devSigTransit(_dev):
-			_dev.sigPlugged.connect(lambda _out, _state:
-				(QMidiDeviceMonitor.sigAdded if _state else QMidiDeviceMonitor.sigMissing).emit(_dev, _out)
-			)
-
-			_dev.sigFail.connect(lambda _out:
-				QMidiDeviceMonitor.sigCrit.emit(_dev, False)
-			)
-
-			_dev.sigRestore.connect(lambda _out, _state:
-				QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
-			)
-
-			_dev.sigTest.connect(lambda v:print('test monitor', v))
 
 
 
@@ -105,13 +109,13 @@ class QMidiDeviceMonitor(QObject):
 			for cPortName in QMidiDeviceMonitor.listPorts(portIsOut):
 				devName = ' '.join(cPortName.split(' ')[:-1])
 
-				cDevice = devSearch(devName)
+				cDevice = QMidiDeviceMonitor._devSearch(devName)
 				logging.info(f"\t\tfound: {cPortName}: {cDevice}")
 
 				#create new device
 				if not cDevice:
 					cDevice = QMidiDevice(devName)
-					devSigTransit(cDevice)
+					QMidiDeviceMonitor._devSigTransit(cDevice)
 
 					QMidiDeviceMonitor.DevicePool += [cDevice]
 
