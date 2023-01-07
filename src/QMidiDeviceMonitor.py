@@ -109,16 +109,8 @@ class QMidiDeviceMonitor(QObject):
 			for cPortName in QMidiDeviceMonitor.listPorts(portIsOut):
 				devName = ' '.join(cPortName.split(' ')[:-1])
 
-				cDevice = QMidiDeviceMonitor._devSearch(devName)
-				logging.info(f"\t\tfound: {cPortName}: {cDevice}")
-
-				#create new device
-				if not cDevice:
-					cDevice = QMidiDevice(devName)
-					QMidiDeviceMonitor._devSigTransit(cDevice)
-
-					QMidiDeviceMonitor.DevicePool += [cDevice]
-
+				cDevice = QMidiDeviceMonitor.demand(devName)
+				logging.info(f"\t\t for {cPortName}: {cDevice}")
 
 				plugFn = cDevice._plugOut if portIsOut else cDevice._plugIn
 				plugFn(True)
