@@ -174,12 +174,12 @@ class QMidiDeviceMonitor(QObject):
 		sigCrit(object, bool): device fail or reconnected
 
 
-		_pulse
-			default None: rescan instantly, returning dict as with .midiList()
-			int seconds: start recurring rescan every _pulse seconds.
+		seconds
+			default 0: rescan instantly, returning dict as with .midiList()
+			int seconds: start recurring rescan every seconds seconds.
 	'''
 # -todo 15 (issue) +0: blank maintain() cause multi-start
-	def maintain(_pulse=None):
+	def maintain(seconds=0):
 		def _cycleThread():
 			while QMidiDeviceMonitor.maintainPulse:
 				QMidiDeviceMonitor._rescan()
@@ -187,14 +187,14 @@ class QMidiDeviceMonitor(QObject):
 				sleep(QMidiDeviceMonitor.maintainPulse)
 
 
-		if not _pulse:
+		if not seconds:
 			QMidiDeviceMonitor.maintainPulse = 0 #cancel cycle
 
 			return QMidiDeviceMonitor._rescan()
 
 
 		if not QMidiDeviceMonitor.maintainPulse:
-			QMidiDeviceMonitor.maintainPulse = _pulse
+			QMidiDeviceMonitor.maintainPulse = seconds
 			Thread(target=_cycleThread, daemon=True).start()
 
-		QMidiDeviceMonitor.maintainPulse = _pulse
+		QMidiDeviceMonitor.maintainPulse = seconds
