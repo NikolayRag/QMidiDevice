@@ -94,9 +94,6 @@ class QMidiDeviceMonitor(QObject):
 			* Create if new name
 	'''
 	def _rescan():
-
-
-
 		#In/Out ports for same device are independent of each other,
 		# only collected within one device.
 		logging.info("\n--- rescan")
@@ -206,3 +203,5 @@ class QMidiDeviceMonitor(QObject):
 		
 
 		return cDevice
+
+#  todo 26 (feature) +0: allow renaming

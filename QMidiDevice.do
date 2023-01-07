@@ -16,7 +16,7 @@
  plug, feature 10: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/06 08:40:02
 	make case for replugging several devices with one name
 
- plug, feature 11: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/06 08:40:02
+ plug, feature 11: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/07 21:38:50
 	allow similar names
 
  feature 12: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/06 08:40:10
@@ -57,4 +57,10 @@
 
 -feature 24: +0 "src\QMidiDevice.py" Ki 23/01/06 06:36:13
 	buffer sended data in case of currently disconnected state
+
++feature 25: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/07 21:41:10
+	make virtual QMidiDevice on demand to be bound later
+
+ feature 26: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/07 23:28:49
+	allow renaming
 
