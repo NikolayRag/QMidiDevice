@@ -254,10 +254,24 @@ class QMidiDevice(QObject):
 # -todo 22 (feature) +0: assign data pattern to re-/connected state
 # -todo 23 (feature) +0: support input data recognition
 # -todo 24 (feature) +0: buffer sended data in case of currently disconnected state
-	def send(self, _ctrl, _val, channel=0, cmd=MidiCC):
-		if channel>16 or channel<0:
-			return
+	def cc(self, _ctrl, _val, channel=0, cmd=MidiCC, send=False):
+		if channel>15:
+			channel = 15
 
+		if channel<0:
+			channel = 0
+
+		outMsg = [cmd+channel, _ctrl, _val]
+
+		if send:
+			if not self.send(outMsg):
+				return
+
+		return outMsg
+
+
+
+	def send(self, _msg):
 		if not self.pluggedOut(quiet=True):
 			return
 		if not self.isConnectedOut():
@@ -265,7 +279,10 @@ class QMidiDevice(QObject):
 
 
 		try:
-			self.portsOut and self.portsOut[0].send_message([cmd+channel, _ctrl, _val])
+			self.portsOut[0].send_message(_msg)
+
+			return True
+
 		except Exception as x:
 			self.disconnectOut(False)
 

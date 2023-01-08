@@ -69,13 +69,13 @@ class QMDDemo():
             tick = 1
             tOut = time() +1
             while time() < tOut:
-                self.midiTo and self.midiTo.send(0, int(127*tick/10000)%127)
+                self.midiTo and self.midiTo.cc(0, int(127*tick/10000)%127, send=True)
                 tick +=1
 
             print(f"\n{tick} ticks/sec, {int(tick/127)} cycles")
 
 
-        self.midiTo and self.midiTo.send(_ctrl, _val)
+        self.midiTo and self.midiTo.cc(_ctrl, _val, send=True)
 
 
 
