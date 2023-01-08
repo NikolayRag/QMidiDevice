@@ -252,7 +252,7 @@ class QMidiDevice(QObject):
 # -todo 20 (feature) +0: support sending arbitrary data, including sysex
 # -todo 21 (feature) +0: support predefined data pattern
 # -todo 22 (feature) +0: assign data pattern to re-/connected state
-# -todo 23 (feature) +0: support input data recognition with provided reaction
+# -todo 23 (feature) +0: support input data recognition
 # -todo 24 (feature) +0: buffer sended data in case of currently disconnected state
 	def send(self, _ctrl, _val, channel=0, cmd=MidiCC):
 		if channel>16 or channel<0:
