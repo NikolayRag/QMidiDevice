@@ -35,8 +35,6 @@ class QMidiDevice(QObject):
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigRestore = Signal(bool, bool) #isOutput, success
 
-	sigTest = Signal(str)
-
 
 	#name and in/out are remain unchanged and defines device at QMidiDevice.maintain()
 	midiName = '' #original device name
@@ -126,7 +124,7 @@ class QMidiDevice(QObject):
 	Called when corresponding device is plugged or unplugged as visible to rtmidi.
 	'''
 	def _plugOut(self, _state=False):
-		self.sigTest.emit('okOut')
+#		self.sigFail.emit(True) #works, relative to todo18
 
 		if bool(_state) == bool(self.pluggedOut()):
 			return
@@ -142,7 +140,7 @@ class QMidiDevice(QObject):
 
 
 	def _plugIn(self, _state=False):
-		self.sigTest.emit('okIn')
+#		self.sigFail.emit(True) #works, relative to todo18
 
 		if bool(_state) == bool(self.pluggedIn()):
 			return
@@ -198,9 +196,7 @@ class QMidiDevice(QObject):
 
 
 	def connectOut(self):
-# =todo 18 (issue) +1: signals dont pass to QMidiMonitor (only!) from here somehow
-		self.sigTest.emit('badOut')
-
+#		self.sigFail.emit(False) #dont work, relative to todo18
 
 		if not self.pluggedOut():
 			return
@@ -213,7 +209,7 @@ class QMidiDevice(QObject):
 
 
 	def connectIn(self):
-		self.sigTest.emit('badIn')
+#		self.sigFail.emit(False) #dont work, relative to todo18
 
 		if not self.pluggedIn():
 			return
@@ -251,7 +247,7 @@ class QMidiDevice(QObject):
 			self.lastIn = False
 
 
-
+ 
 # -todo 19 (feature) +0: support 14bit data sending with two controllers
 # -todo 20 (feature) +0: support sending arbitrary data, including sysex
 # -todo 21 (feature) +0: support predefined data pattern
@@ -273,6 +269,7 @@ class QMidiDevice(QObject):
 		except Exception as x:
 			self.disconnectOut(False)
 
+# =todo 18 (issue) +1: signals dont pass to QMidiMonitor (only!) from here somehow
 			self.sigFail.emit(True)
 
 			self.pluggedOut() #check

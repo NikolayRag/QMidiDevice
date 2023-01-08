@@ -49,12 +49,9 @@ class QMDDemo():
         if midiDev and midiDev!=self.midiFrom:
             if self.midiFrom:
                 self.midiFrom.sigRecieved.disconnect()
-                self.midiFrom.sigTest.disconnect()
                 self.midiFrom.disconnectIn()
 
             midiDev.sigRecieved.connect(self.midiProccess)
-
-            midiDev.sigTest.connect(lambda v:print('test main', v))
 
         midiDev.connectIn()
         self.midiFrom = midiDev
@@ -90,9 +87,12 @@ class QMDDemo():
         midiDev = cItem.data(Qt.UserRole)
         if midiDev and midiDev!=self.midiTo:
             if self.midiTo:
+                self.midiFrom.sigFail.disconnect()
                 self.midiTo.disconnectIn()
 
-        midiDev.connectOut()
+            midiDev.sigFail.connect(lambda _:print(f"!! fail: {midiDev.getName()}"))
+            midiDev.connectOut()
+        
         self.midiTo = midiDev
 
 
@@ -125,7 +125,7 @@ class QMDDemo():
         QMidiDeviceMonitor.sigScanned.connect(self.midiCollect)
         QMidiDeviceMonitor.sigAdded.connect(lambda _dev, _out: print(f" + {'out' if _out else 'in'} {_dev.getName()}"))
         QMidiDeviceMonitor.sigMissing.connect(lambda _dev, _out: print(f" - {'out' if _out else 'in'} {_dev.getName()}"))
-        QMidiDeviceMonitor.sigCrit.connect(lambda _dev, _state: print(f" ! {'restore' if _state else 'fail'} {_dev.getName()}"))
+        QMidiDeviceMonitor.sigCrit.connect(lambda _dev, _state: print(f" ! {'restore' if _state else 'fail'}: {_dev.getName()}"))
         wBtnMidiFrom.clicked.connect(self.midiSetFrom)
         wBtnMidiTo.clicked.connect(self.midiSetTo)
 

@@ -67,8 +67,6 @@ class QMidiDeviceMonitor(QObject):
 			QMidiDeviceMonitor.sigCrit.emit(_dev, True) if _state else None
 		)
 
-		_dev.sigTest.connect(lambda v:print('test monitor', v))
-
 
 
 #  todo 11 (plug, feature) +0: allow similar names
