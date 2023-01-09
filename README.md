@@ -60,3 +60,6 @@ There's confusing issue, that prevents `QMidiDevice.sigFail()` pass to `QMidiDev
 `QMidiDevice` rely on `rtmidi`  
 https://pypi.org/project/python-rtmidi/
 
+
+MIDI breef summary
+https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
