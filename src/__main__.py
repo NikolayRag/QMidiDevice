@@ -51,19 +51,15 @@ class QMDDemo():
                 self.midiFrom.sigRecieved.disconnect()
                 self.midiFrom.disconnectIn()
 
-            midiDev.sigRecieved.connect(self.midiProccess)
+            midiDev.sigCC.connect(self.midiProccess)
 
         midiDev.connectIn()
         self.midiFrom = midiDev
 
 
     
-    def midiProccess(self, _midi):
-        _cch, _ctrl, _val = _midi
-        _cmd = _cch & 0xF0
-        _chan = _cch & 0x0F
-
-#        print(f" midi {bin(_cmd>>4)} {_chan} {_ctrl}: {_val}\t\t", end='\r')
+    def midiProccess(self, _ctrl, _val, _chan):
+#        print(f" midi {_chan} {_ctrl}: {_val}\t\t", end='\r')
 
         if _ctrl==32 and _val==127:
             tick = 1
