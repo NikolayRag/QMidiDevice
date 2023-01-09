@@ -30,7 +30,7 @@ class QMidiDevice(QObject):
 	MidiCC = 0xB0
 
 
-	sigRecieved = Signal(list) #[data]
+	sigRecieved = Signal(list, int) #[data], stamp
 	sigPlugged = Signal(bool, bool) #isOutput, state
 	sigFail = Signal(bool) #error at sending data, isOutput flag
 	sigRestore = Signal(bool, bool) #isOutput, success
@@ -169,8 +169,8 @@ class QMidiDevice(QObject):
 	Connect present ports using device name
 	'''
 	def _connect(self, _out=True):
-		def _listen(_data, _):
-			self.sigRecieved.emit(_data[0])
+		def _listen(_val, _):
+			self.sigRecieved.emit(_val[0], _val[1])
 
 
 		portTest = self.portsOut if _out else self.portsIn
