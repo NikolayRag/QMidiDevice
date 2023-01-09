@@ -46,14 +46,14 @@
 -feature 20: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:06
 	support sending arbitrary data, including sysex
 
--feature 21: +0 "src\QMidiDevice.py" Ki 23/01/08 07:24:53
-	support predefined data pattern
+-feature 21: +0 "src\QMidiDevice.py" Ki 23/01/09 02:29:40
+	support data pattern definition
 
 -feature 22: +0 "src\QMidiDevice.py" Ki 23/01/06 06:33:08
 	assign data pattern to re-/connected state
 
--feature 23: +0 "src\QMidiDevice.py" Ki 23/01/08 07:25:23
-	support input data recognition
+-feature 23: +0 "src\QMidiDevice.py" Ki 23/01/09 02:59:51
+	support input filters
 
 -feature 24: +0 "src\QMidiDevice.py" Ki 23/01/06 06:36:13
 	buffer sended data in case of currently disconnected state
