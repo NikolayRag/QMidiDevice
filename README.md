@@ -1,50 +1,58 @@
 # QMidiDevice
-Abstract MIDI device for QT/PySide
+MIDI device interface for `PySide`
 
 https://github.com/NikolayRag/QMidiDevice
 
-`QMidiDevice` is a QObject that is bound to specific named hardware or virtual MIDI device, handling connection, automatic reconnection, failure handling, listening to incoming data and sending outgoing data.
+`QMidiDevice` is bound to specific hardware or virtual MIDI device. It handle  connection, failure handling, automatic reconnection, listening to incoming data and sending outgoing data.
 
-`QMidiDevice` instances are created with `QMidiDeviceMonitor.maintain(time)` singletone call.
+Both input and output ports for same device are bound within one `QMidiDevice`.  
+Only one `QMidiDevice` per device exists at a time, maintained by QMidiDeviceMonitor. 
 
-Only one `QMidiDevice` per device exists at a moment, maintained by QMidiDeviceMonitor. Both input and output ports for same device are bound within one `QMidiDevice`.
+`QMidiDevice` instances are created and managed by `QMidiDeviceMonitor` singletone.  
+Start with `QMidiDeviceMonitor.maintain(seconds)` static call, which will monitor available devices repeatedly every `seconds`.
 
 Each device with unique name get it's own `QMidiDevice` wrapper, being valid till app exit, even while device is unplugged physically. Device disconnections, reconnections and errors are handled by emitting `QMidiDevice`'s specific signals.
 
 
 
+### Plugging and connecting
+
+`QMidiDevice` fires .sigPlugged(isOut, state) signal as device plugged state is changed.  
+This can happen at `QMidiDeviceMonitor` maintainance, or by catching device error (state=False for unplugged).
+
+`QMidiDevice` been unplugged by accident will reconnect when plugged back. `sigRestore(isOut, success)` emitted in this case.
+
+
+
+### Data sending and receiving
+
+Send raw data with `.send(list)` with bytes `list`.  
+Control changes can be built and sent with '.cc()'.  
+
+All data sent to `QMidiDevice` handled regardless to plugged state.
+
+`sigRecieved(list)` signals emitted when data is received.  
+Control Change input events are detected, emitting `sigCC()` event.
+
+
 ##QMidiDeviceMonitor
 
-Singletone class, used to handle actual MIDI devices pool.
+Singletone class, used to handle `QMidiDevice` pool.
 
-Start `QMidiDevice` flow by calling `QMidiDeviceMonitor.maintain(time)`, which will scan available MIDI devices repeatedly, with `time` cycle length in seconds. Providing `0` (default) will run maintainance proccess once and stop running cycle if any.
+`QMidiDeviceMonitor.maintain(seconds=0)` repeatedly scan available MIDI devices, with `seconds` cycle frequency. Providing `0` (default) will scan once and stop running cycle if any.
 
-Static `QMidiDeviceMonitor.sigScanned(list)` signal will be emitted at each cycle, providing complete `QMidiDevice` list collected so far. This list holds all MIDI devices been found at any cycle. 
+Static `QMidiDeviceMonitor.sigScanned(list)` signal will be emitted at each cycle, providing complete `QMidiDevice` list collected so far. This list holds all MIDI devices been found since first cycle, also with  currently disconnected ones.
 
-`QMidiDevice` list can be retreieved by `QMidiDeviceMonitor.midiList(bool)` call. While omitting argument will return complete list of devices, even disconnected, providing True or False will return only plugged devices with Output and Input ports respectively.
+`QMidiDevice` for non-yet-plugged device created with `QMidiDeviceMonitor.demand(name)`.
 
-In addition to `sigScanned`, `sigAdded(object, bool)` and `sigMissing(object, bool)` are emitted when device is plugged and unplugged, boolean `True` standing for Output, and `False` for Input.
+Last known `QMidiDevice` list can be retreieved by `QMidiDeviceMonitor.midiList(bool)` call. While omitting argument will return complete list of devices, providing True or False will return only plugged devices with Output and Input ports respectively.
 
-`sigCrit(object, bool)` emitted when device suddenly realised disconnected while being operated (bool = `False`), or reconnects back (bool = `True`)
+`sigAdded(object, bool)` and `sigMissing(object, bool)` are emitted when device is plugged and unplugged, boolean `True` standing for Output, and `False` for Input.
 
+`sigCrit(object, bool)` emitted when device suddenly realised disconnected while being operated with `False`, or reconnects back for `True`.
 
 *!
-There's confusing issue, that prevent `QMidiDevice.sigFail()` pass to `QMidiDeviceMonitor.sigCrit(object,False)`, while being intercepted directly. It's going to be some scope or CG issue for sure, any help is welcome.*
-
-
-
-## Plugging and connecting
-
-
-
-
-## Data sending and receiving
-
-All data sent to `QMidiDevice` handled regardless+ to plugged state and is buffered if set.
-Data sent to actual device can be filtered by transform hooks+ which can be table+ definitions at default case.
-
-Received data is nonblocked, firing signals and also filtered+ back.
-
+There's confusing issue, that prevents `QMidiDevice.sigFail()` pass to `QMidiDeviceMonitor.sigCrit(object,False)`, while being intercepted directly. It's going to be some scope or CG issue for sure, any help is welcome.*
 
 ---
 
