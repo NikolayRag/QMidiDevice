@@ -49,6 +49,8 @@ class QMidiDevice(QObject):
 	lastIn = False
 
 
+	offBuffer = []
+
 	'''
 	rtmidi wrapper.
 
@@ -71,6 +73,8 @@ class QMidiDevice(QObject):
 
 		self.portsOut = []
 		self.portsIn = []
+
+		self.offBuffer = []
 
 
 
@@ -210,6 +214,8 @@ class QMidiDevice(QObject):
 
 
 		self.lastOut = self._connect(True)
+		self.send([])
+
 		return self.lastOut
 
 
@@ -259,7 +265,7 @@ class QMidiDevice(QObject):
 # -todo 22 (feature) +0: assign data pattern to re-/connected state
 # -todo 23 (feature) +0: support input filters
 # -todo 24 (feature) +0: buffer sended data in case of currently disconnected state
-	def cc(self, _ctrl, _val, channel=0, cmd=MidiCC, send=False):
+	def cc(self, _ctrl, _val, channel=0, cmd=MidiCC, send=False, must=False):
 		if channel>15:
 			channel = 15
 
@@ -269,14 +275,32 @@ class QMidiDevice(QObject):
 		outMsg = [cmd+channel, _ctrl, _val]
 
 		if send:
-			if not self.send(outMsg):
+			if not self.send(outMsg, must):
 				return
 
 		return outMsg
 
 
 
-	def send(self, _msg):
+'''Send data block to MIDI device
+
+Send raw byte block to MIDI Out port.
+
+Data is not checked for any kind of MIDI standart,
+ it can be any sequence of bytes.
+
+Args:
+	_msg ([list]): [Byte list]
+	must (bool): [Set if _msg should be buffered in case of device reconnect] (default: `False`)
+
+Returns:
+	[bool]: [Success flag]
+'''
+	def send(self, _msg, must=False):
+		if must:
+			self.offBuffer += [_msg]
+
+
 		if not self.pluggedOut(quiet=True):
 			return
 		if not self.isConnectedOut():
@@ -284,9 +308,18 @@ class QMidiDevice(QObject):
 
 
 		try:
-			self.portsOut[0].send_message(_msg)
+			for cMsg in self.offBuffer[:]:
+				self.portsOut[0].send_message(cMsg)
+
+				self.offBuffer.pop(0)
+
+
+			if not must:
+				self.portsOut[0].send_message(_msg)
+
 
 			return True
+
 
 		except Exception as x:
 			self.disconnectOut(False)
