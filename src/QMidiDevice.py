@@ -260,11 +260,10 @@ class QMidiDevice(QObject):
 
  
 # -todo 19 (feature) +0: support 14bit data sending with two controllers
-# -todo 20 (feature) +0: support sending arbitrary data, including sysex
 # -todo 21 (feature) +0: support data pattern definition
 # -todo 22 (feature) +0: assign data pattern to re-/connected state
 # -todo 23 (feature) +0: support input filters
-# =todo 24 (feature) +0: buffer sended data in case of currently disconnected state
+# =todo 24 (feature, test) +0: buffer sended data in case of currently disconnected state
 	def cc(self, _ctrl, _val, channel=0, cmd=MidiCC, send=False, must=False):
 		if channel>15:
 			channel = 15
