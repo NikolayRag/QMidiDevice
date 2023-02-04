@@ -282,20 +282,20 @@ class QMidiDevice(QObject):
 
 
 
-'''Send data block to MIDI device
+	'''Send data block to MIDI device
 
-Send raw byte block to MIDI Out port.
+	Send raw byte block to MIDI Out port.
 
-Data is not checked for any kind of MIDI standart,
- it can be any sequence of bytes.
+	Data is not checked for any kind of MIDI standart,
+	 it can be any sequence of bytes.
 
-Args:
-	_msg ([list]): [Byte list]
-	must (bool): [Set if _msg should be buffered in case of device reconnect] (default: `False`)
+	Args:
+		_msg ([list]): [Byte list]
+		must (bool): [Set if _msg should be buffered in case of device reconnect] (default: `False`)
 
-Returns:
-	[bool]: [Success flag]
-'''
+	Returns:
+		[bool]: [Success flag]
+	'''
 	def send(self, _msg, must=False):
 		if must:
 			self.offBuffer += [_msg]
