@@ -121,6 +121,11 @@ class QMDDemo():
             print(f"\n{tick} ticks/sec, {int(tick/127)} cycles")
 
 
+        if self.wFilterChan.value()>-1 and self.wFilterChan.value() != _chan:
+            return
+        if self.wFilterCtrl.value()>-1 and self.wFilterCtrl.value() != _ctrl:
+            return
+
         self.midiTo and self.midiTo.cc(_ctrl, _val, send=True)
 
 
@@ -155,6 +160,27 @@ class QMDDemo():
         layDevOut.addWidget(QLabel('Midi Out'))
         self.wListMidiOuts = QListWidget()
         layDevOut.addWidget(self.wListMidiOuts)
+
+
+        layDevFilter = QHBoxLayout()
+        layDevOut.addLayout(layDevFilter)
+
+        layDevFilter.addWidget(QLabel('Channel'))
+        self.wFilterChan = QSpinBox()
+        self.wFilterChan.setMinimum(-1)
+        self.wFilterChan.setMaximum(15)
+        self.wFilterChan.setValue(-1)
+        layDevFilter.addWidget(self.wFilterChan)
+
+        layDevFilter.addWidget(QLabel('Controller'))
+        self.wFilterCtrl = QSpinBox()
+        self.wFilterCtrl.setMinimum(-1)
+        self.wFilterCtrl.setMaximum(127)
+        self.wFilterCtrl.setValue(-1)
+        layDevFilter.addWidget(self.wFilterCtrl)
+
+        self.wSpFilter = QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Fixed)
+        layDevFilter.addItem(self.wSpFilter)
 
 
         self.wListMidiIns.currentItemChanged.connect(self.midiSetFrom)
