@@ -137,7 +137,7 @@ class QMDDemo():
         theApp = QApplication()
         theApp.setApplicationName('QMidiDevice test')
         theWindow = QMainWindow()
-        theWindow.resize(QSize(400,200))
+        theWindow.resize(QSize(600,300))
         theWindow.setCentralWidget(QWidget())
         layMain = QVBoxLayout(theWindow.centralWidget())
 
