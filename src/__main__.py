@@ -132,18 +132,6 @@ class QMDDemo():
 
 
     def midiProccess(self, _ctrl, _val, _chan):
-#        print(f" midi {_chan} {_ctrl}: {_val}\t\t", end='\r')
-
-        if _ctrl==32 and _val==127:
-            tick = 1
-            tOut = time() +1
-            while time() < tOut:
-                self.midiTo and self.midiTo.cc(0, int(127*tick/10000)%127, send=True)
-                tick +=1
-
-            print(f"\n{tick} ticks/sec, {int(tick/127)} cycles")
-
-
         if self.wFilterChan.value()>-1 and self.wFilterChan.value() != _chan:
             return
         if self.wFilterCtrl.value()>-1 and self.wFilterCtrl.value() != _ctrl:
@@ -151,6 +139,14 @@ class QMDDemo():
 
         self.midiTo and self.midiTo.cc(_ctrl, _val, send=True)
 
+    def midiPattern(self):
+        tick = 1
+        tOut = time() +1
+        while time() < tOut:
+            self.midiTo and self.midiTo.cc(5, int(127*tick/10000)%127)
+            tick +=1
+
+        print(f"\n{tick} ticks/sec, {int(tick/127)} cycles")
 
 
 
@@ -211,13 +207,25 @@ class QMDDemo():
         self.wFilterCtrl.setValue(-1)
         layDevFilter.addWidget(self.wFilterCtrl)
 
-        self.wSpFilter = QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Fixed)
-        layDevFilter.addItem(self.wSpFilter)
+        wSpFilter = QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Fixed)
+        layDevFilter.addItem(wSpFilter)
+
+
+        layOutPattern = QHBoxLayout()
+        layDevOut.addLayout(layOutPattern)
+
+        layOutPattern.addWidget(QLabel('Patterns'))
+        self.wPattern1 = QPushButton('P1')
+        layOutPattern.addWidget(self.wPattern1)
+
+        wSpFilter = QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Fixed)
+        layOutPattern.addItem(wSpFilter)
 
 
         self.wListMidiIns.currentRowChanged.connect(self.midiSetFrom)
         self.wListMidiOuts.currentRowChanged.connect(self.midiSetTo)
 
+        self.wPattern1.pressed.connect(self.midiPattern)
 
 
         #QMidiDevice setup
