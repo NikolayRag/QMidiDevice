@@ -25,6 +25,10 @@ class QMDDemo():
 
     #show MIDI devices
     def midiCollect(self,  _devices):
+        self.wListMidiIns.blockSignals(True)
+        self.wListMidiOuts.blockSignals(True)
+
+
         iSelIn = self.wListMidiIns.currentRow()
         if iSelIn==-1: iSelIn = 0
         self.wListMidiIns.clear()
@@ -59,6 +63,9 @@ class QMDDemo():
         self.wListMidiIns.setCurrentRow(iSelIn)
         self.wListMidiOuts.setCurrentRow(iSelOut)
 
+
+        self.wListMidiIns.blockSignals(False)
+        self.wListMidiOuts.blockSignals(False)
 
 
 
@@ -195,8 +202,8 @@ class QMDDemo():
         layDevFilter.addItem(self.wSpFilter)
 
 
-        self.wListMidiIns.currentItemChanged.connect(self.midiSetFrom)
-        self.wListMidiOuts.currentItemChanged.connect(self.midiSetTo)
+        self.wListMidiIns.currentRowChanged.connect(self.midiSetFrom)
+        self.wListMidiOuts.currentRowChanged.connect(self.midiSetTo)
 
 
 
