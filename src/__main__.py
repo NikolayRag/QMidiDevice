@@ -137,7 +137,9 @@ class QMDDemo():
         if self.wFilterCtrl.value()>-1 and self.wFilterCtrl.value() != _ctrl:
             return
 
-        self.midiTo and self.midiTo.cc(_ctrl, _val, send=True)
+        self.midiTo and self.midiTo.cc(_ctrl, _val)
+
+
 
     def midiPattern(self):
         tick = 1
