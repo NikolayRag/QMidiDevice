@@ -68,14 +68,16 @@ class QMDDemo():
             return
 
         midiDev = cItem.data(Qt.UserRole)
-        if midiDev==self.midiTo:
+        if midiDev==self.midiFrom:
             return
 
         if self.midiFrom:
             self.midiFrom.sigReceived.disconnect()
+            self.midiFrom.sigCC.disconnect()
             self.midiFrom.disconnectIn()
 
         if midiDev:
+            midiDev.sigReceived.connect(self.midiDump)
             midiDev.sigCC.connect(self.midiProccess)
             midiDev.connectIn()
 
@@ -104,7 +106,8 @@ class QMDDemo():
 
 
 
-
+    def midiDump(self, _block):
+        self.wDump.append(f"{_block}")
 
 
 
