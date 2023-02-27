@@ -106,7 +106,7 @@ class QMDDemo():
 
 
     def midiSetTo(self):
-        cItem = self.wListMidiIns.currentItem()
+        cItem = self.wListMidiOuts.currentItem()
         if not cItem:
             return
 
@@ -115,8 +115,8 @@ class QMDDemo():
             return
 
         if self.midiTo:
-            self.midiFrom.sigFail.disconnect()
-            self.midiTo.disconnectIn()
+            self.midiTo.sigFail.disconnect()
+            self.midiTo.disconnectOut()
 
         if midiDev:
             midiDev.sigFail.connect(lambda _:print(f"!! fail: {midiDev.getName()}"))
