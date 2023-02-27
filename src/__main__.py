@@ -157,6 +157,15 @@ class QMDDemo():
         layDevIn.addWidget(self.wListMidiIns)
 
 
+        layDump = QVBoxLayout()
+        layDevs.addLayout(layDump)
+
+        layDump.addWidget(QLabel('Dump'))
+        self.wDump = QTextEdit()
+        self.wDump.setMaximumWidth(150)
+        layDump.addWidget(self.wDump)
+
+
         layDevOut = QVBoxLayout()
         layDevs.addLayout(layDevOut)
 
