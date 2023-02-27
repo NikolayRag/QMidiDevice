@@ -1,5 +1,18 @@
 #Pyside demo case
 
+
+'''Cases
+
+* Constant flow (Dev In)->(Dev Out)
+    + Filter
+
+* Dump In
+
+* Pattern Out
+
+'''
+
+
 if __name__ != "__main__":
     exit()
 
