@@ -30,7 +30,7 @@ class QMidiDevice(QObject):
 	MidiCC = 0xB0
 
 
-	sigRecieved = Signal(list, int) #[data], stamp
+	sigReceived = Signal(list, int) #[data], stamp
 	sigCC = Signal(int, int, int, int) #controller, value, channel, stamp
 	sigPlugged = Signal(bool, bool) #isOutput, state
 	sigFail = Signal(bool) #error at sending data, isOutput flag
@@ -175,7 +175,7 @@ class QMidiDevice(QObject):
 	'''
 	def _connect(self, _out=True):
 		def _listen(_val, _):
-			self.sigRecieved.emit(_val[0], _val[1])
+			self.sigReceived.emit(_val[0], _val[1])
 
 			if (_val[0][0] & 0xF0) == self.MidiCC:
 				self.sigCC.emit(_val[0][1], _val[0][2], _val[0][0] & 0x0F, _val[1])

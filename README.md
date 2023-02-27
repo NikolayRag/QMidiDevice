@@ -31,7 +31,7 @@ Control changes can be built and sent with '.cc()'.
 
 All data sent to `QMidiDevice` handled regardless to plugged state.
 
-`sigRecieved(list)` signals emitted when data is received.  
+`sigReceived(list)` signals emitted when data is received.  
 Control Change input events are detected, emitting `sigCC()` event.
 
 

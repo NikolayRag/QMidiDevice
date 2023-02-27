@@ -72,7 +72,7 @@ class QMDDemo():
             return
 
         if self.midiFrom:
-            self.midiFrom.sigRecieved.disconnect()
+            self.midiFrom.sigReceived.disconnect()
             self.midiFrom.disconnectIn()
 
         if midiDev:
