@@ -1,3 +1,5 @@
+# =todo 27 (issue) +0: pin selected device
+
 #Pyside demo case
 
 

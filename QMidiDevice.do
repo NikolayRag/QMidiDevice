@@ -64,3 +64,6 @@
  feature 26: +0 "src\QMidiDeviceMonitor.py" Ki 23/01/07 23:28:49
 	allow renaming
 
+=ui 27: +0 "src\__main__.py" Ki 23/03/03 02:14:01
+	pin selected device
+
