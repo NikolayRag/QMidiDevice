@@ -35,7 +35,7 @@ All data sent to `QMidiDevice` handled regardless to plugged state.
 Control Change input events are detected, emitting `sigCC()` event.
 
 
-##QMidiDeviceMonitor
+## QMidiDeviceMonitor
 
 Singletone class, used to handle `QMidiDevice` pool.
 
